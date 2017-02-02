@@ -1,34 +1,68 @@
 package entity;
 
+import exceptions.NotFoundException;
 import java.util.ArrayList;
 
-public class WaitingQueue 
-{
-	
-    int maxCount = 100;
-    ArrayList<Integer> playerIds;
-       
+/**
+ *
+ * @author dion
+ */
+public class WaitingQueue {
+
+    private int maxCount = 100;
+    private ArrayList<Integer> playerIds;
+
+    /**
+     *
+     */
     public WaitingQueue() {
-    	playerIds = new ArrayList<Integer>();
+        playerIds = new ArrayList<>();
     }
 
-	public int getMaxCount() {
-		return maxCount;
-	}
+    /**
+     *
+     * @return
+     */
+    public int getMaxCount() {
+        return maxCount;
+    }
 
-	public void setMaxCount(int maxCount) {
-		this.maxCount = maxCount;
-	}
+    /**
+     *
+     * @param maxCount
+     */
+    public void setMaxCount(int maxCount) {
+        this.maxCount = maxCount;
+    }
 
-	public ArrayList<Integer> getPlayerIds() {
-		return playerIds;
-	}
+    /**
+     *
+     * @return
+     */
+    public ArrayList<Integer> getPlayerIds() {
+        return playerIds;
+    }
 
-	public void setPlayerIds(ArrayList<Integer> playerIds) {
-		this.playerIds = playerIds;
-	}
- 
-    
+    /**
+     *
+     * @param playerIds
+     */
+    public void setPlayerIds(ArrayList<Integer> playerIds) {
+        this.playerIds = playerIds;
+    }
 
-    
+    /**
+     *
+     * @param playerId
+     * @return
+     */
+    public int getPositionOfPlayer(int playerId) {
+
+        int i = this.playerIds.indexOf(playerId);
+
+        if (i == -1) {
+            throw new NotFoundException();
+        }
+        return i+1;
+    }
 }

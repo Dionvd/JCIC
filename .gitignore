@@ -1,0 +1,11 @@
+target/classes/entity/StringValue.class
+target/classes/webservice/AppErrorController.class
+target/classes/webservice/MapController.class
+target/classes/webservice/PlayerController.class
+target/classes/app/ErrorConfig.class
+target/classes/entity/Game.class
+target/classes/entity/GameMap.class
+target/classes/entity/Main.class
+target/classes/webservice/QueueController.class
+target/classes/webservice/TurnController.class
+/target/

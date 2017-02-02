@@ -1,5 +1,4 @@
 //http://www.baeldung.com/swagger-2-documentation-for-spring-rest-api
-
 package app;
 
 import org.springframework.context.annotation.Bean;
@@ -10,15 +9,24 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+/**
+ * Swagger configuration file
+ * @author dion
+ */
 @Configuration
 @EnableSwagger2
-public class SwaggerConfig {                                    
+public class SwaggerConfig {
+
+    /**
+     * 
+     * @return
+     */
     @Bean
-    public Docket api() { 
-        return new Docket(DocumentationType.SWAGGER_2)  
-          .select()                                  
-          .apis(RequestHandlerSelectors.any())              
-          .paths(PathSelectors.any())                          
-          .build();                                           
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.any())
+                .build();
     }
 }
