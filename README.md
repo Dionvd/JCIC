@@ -4,7 +4,7 @@ For more info visit http://joyofcoding.org/
 
 # License
 The JCIC project is made possible by Finalist, and by their choice, this code is completely open-source. 
-Therefor this project uses the Creative Commons (CC0) License. Anyone can view or copy this code for their own purposes and create derivative work for both personal and commercial use. 
+Therefor this project uses the Creative Commons (CC0) License. Anyone can view or copy this code for their own purposes and create derivative work for both personal and commercial use. This project uses plugins and libraries from other sources to which this CC0 license does not extend, and these may have their own licenses. 
 By using this code it is now yours, and we are no longer responsible for what happens with it in any way. 
 Please read the license : https://creativecommons.org/publicdomain/zero/1.0/
 
