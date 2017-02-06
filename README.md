@@ -24,3 +24,8 @@ To get the latest stable code, please use the master branch.
 Classes within the entity package are entity classes. These entity classes represent the data that can be transferred or shared by web services.
 Classes within the rest package are RESTful web service classes. Besides a few helping classes most of these classes use Spring to create a web service that shares game data.
 Classes within the exception package are custom exceptions with Spring annotations that help with better HTTP error handling.
+
+# Credits
+Dion van Dam - Software Developing and documentation
+Martin van Amersfoorth - Project leading as product owner
+Martijn van der Maas - Tutoring and reviewing
