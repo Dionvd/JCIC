@@ -27,5 +27,7 @@ Classes within the exception package are custom exceptions with Spring annotatio
 
 # Credits
 Dion van Dam - Software Developing and documentation
+
 Martin van Amersfoorth - Project leading as product owner
+
 Martijn van der Maas - Tutoring and reviewing
