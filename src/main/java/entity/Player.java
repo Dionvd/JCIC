@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- *
+ * Player class. Contains all account and player data of one person.
+ * Referenced by its id in the Game, WaitingQueue and Node classes.
+ * Stored as a list in Main.
  * @author dion
  */
 public class Player {

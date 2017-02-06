@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class QueueResource {
 
     /**
-     * Get the current waiting queue
+     * Get the current waiting queue.
      * @return WaitingQueue 
      */
     @RequestMapping(value = "/queue", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -26,7 +26,7 @@ public class QueueResource {
     }
 
     /**
-     * Gets the queue position of a specific player
+     * Gets the queue position of a specific player.
      * @param playerId
      * @return index of playerId in the WaitingQueue.
      */

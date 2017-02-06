@@ -4,21 +4,25 @@ package entity;
 import java.util.EnumMap;
 import java.util.Map;
 
-
 /**
- * Contains the selected rules of a single match.
- * not to be confused with Settings, which contains global settings and rules.
+ * GameRules contains the selected rules of a single match. 
+ * GameRules is a sub object of Game.
+ * Not to be confused with the Settings class, which contains global settings and rules.
+ * Many game rules are derived from the Settings class.
  * @author dion
  */
 public class GameRules {
 
+    static final int MAX_POWER = 100;
+    
     private Map<Action, Integer> actionCosts = new EnumMap<>(Action.class);
-    double fluctuation = 0.5;
+    private double fluctuation;
+    
     
     public GameRules(Settings settings) {
-        
+
         this.fluctuation = settings.getGameRuleFluctuation();
-        
+
         actionCosts.put(Action.SLEEP, 0);
         actionCosts.put(Action.SPREAD, fluctuate(settings.getDefaultActionCosts().get(Action.SPREAD)));
         actionCosts.put(Action.SPREADALL, fluctuate(settings.getDefaultActionCosts().get(Action.SPREADALL)));
@@ -34,20 +38,22 @@ public class GameRules {
     }
 
     /**
-     * Randomly adjusts the given number up or down depending on the fluctuation amount.
+     * Randomly adjusts the given number up or down depending on the fluctuation
+     * amount.
+     *
      * @param i
      * @return i (fluctuated)
      */
-    private int fluctuate(int i)
-    {
-        i = (int)(i * (Math.random()*fluctuation*2+1-fluctuation));
-        if (i > 100) i = 100;
-        return i;
+    private int fluctuate(int i) {
+        int fluctI = (int) (i * (Math.random() * fluctuation * 2 + 1 - fluctuation));
+        if (fluctI > MAX_POWER) {
+            fluctI = MAX_POWER;
+        }
+        return fluctI;
     }
-    
-    
+
     public Map<Action, Integer> getActionCosts() {
         return actionCosts;
     }
-    
+
 }

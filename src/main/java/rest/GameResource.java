@@ -1,7 +1,6 @@
 package rest;
 
 import entity.*;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.http.MediaType;
@@ -27,7 +26,7 @@ public class GameResource {
      * @return ArrayList of all games.
      */
     @RequestMapping(value = "")
-    public Iterable<Game> getGames() {
+    public Collection<Game> getGames() {
         return Main.self.getGames();
     }
 
@@ -43,8 +42,7 @@ public class GameResource {
     public Game getGame(@PathVariable(value = "gameId") String gameId) {
 
         int i = ResourceMethods.parseInt(gameId);
-        Game g = Main.self.getGameById(i);
-        return g;
+        return Main.self.getGameById(i);
     }
 
     /**
@@ -69,7 +67,7 @@ public class GameResource {
      * @return row of nodes at coordinate y of game matching gameId.
      */
     @RequestMapping(value = "/{gameId}/map/{row}")
-    public Iterable<Node> getGameMapRow(
+    public Collection<Node> getGameMapRow(
             @PathVariable(value = "gameId") String gameId,
             @PathVariable(value = "row") String row) {
 
@@ -78,7 +76,7 @@ public class GameResource {
         int iy = ResourceMethods.parseInt(row);
         
         Game g = Main.self.getGameById(i);
-        return g.getMap().getNodes().get(iy);
+        return g.getMap().getNodesRow(iy);
     }
 
     /**
@@ -105,6 +103,20 @@ public class GameResource {
         return g.getMap().getNode(ix, iy);
     }
 
+    /**
+     * Get the game turn count.
+     *
+     * @param gameId
+     * @return turn count of game matching gameId.
+     */
+    @RequestMapping(value = "/{gameId}/players")
+
+    public Collection<Integer> getGamePlayers(@PathVariable(value = "gameId") String gameId) {
+
+        int i = ResourceMethods.parseInt(gameId);
+        Game g = Main.self.getGameById(i);
+        return g.getPlayerIds();
+    }
     /**
      * Get the game turn count.
      *

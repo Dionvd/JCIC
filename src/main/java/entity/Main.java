@@ -3,6 +3,7 @@ package entity;
 
 import exceptions.NotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Highest hierarchy entity class that stores the other entities as objects. 
@@ -18,8 +19,8 @@ public class Main {
     public static Main self;
 
 
-    private ArrayList<Game> games;
-    private ArrayList<Player> players;
+    private List<Game> games;
+    private List<Player> players;
     private WaitingQueue waitingQueue;
     private Settings settings;
 
@@ -43,7 +44,7 @@ public class Main {
         Main.self = new Main();
 
         
-        if (Main.self.settings.mockData) {
+        if (Settings.MOCKDATA) {
             
             Player player = new Player("John", "password");
             player.setSessionId(11111111);
@@ -74,7 +75,8 @@ public class Main {
             Game game = new Game(Main.self.settings);
 
             game.setMap(new GameMap(10, 10));
-
+            game.setTurn(4);
+            
             Main.self.waitingQueue.setMaxCount(50);
             Main.self.waitingQueue.getPlayerIds().add(1002);
             Main.self.waitingQueue.getPlayerIds().add(1003);
@@ -126,7 +128,7 @@ public class Main {
         throw new NotFoundException();
     }
     
-    public ArrayList<Game> getGames() {
+    public List<Game> getGames() {
         return games;
     }
 
@@ -134,15 +136,15 @@ public class Main {
         return games.get(i);
     }
 
-    public void setGames(ArrayList<Game> games) {
+    public void setGames(List<Game> games) {
         this.games = games;
     }
 
-    public ArrayList<Player> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
-    public void setPlayers(ArrayList<Player> players) {
+    public void setPlayers(List<Player> players) {
         this.players = players;
     }
 

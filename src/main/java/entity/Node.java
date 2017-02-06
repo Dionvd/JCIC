@@ -1,14 +1,18 @@
 package entity;
 
 /**
- *
+ * A Node is one of the hexagons on one of the maps of a single game.
+ * GameMap contains a grid of nodes, where the coordinates of a Node are stored as the indexes.
+ * The current owner of this node can be a player, in which an instance of Player is referenced with ownerId.
  * @author dion
  */
 public class Node {
 
     private int power = 0;
     private int ownerId = 0;
-    private int type = 0; //0 = normal; 1 = powerline; 2 = overclocked; 3 = guarded; 4 = storage;
+    
+    //-1 = empty, 0 = normal; 1 = powerline; 2 = overclocked; 3 = guarded; 4 = storage;
+    private int type = 0; 
 
     /**
      *

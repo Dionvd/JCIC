@@ -1,5 +1,6 @@
 package rest;
 
+import exceptions.*;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -8,6 +9,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * Simple RESTful web service resource for redirections.
+ * There's also something else, but just ignore that.
  * @author dion
  */
 @ApiIgnore
@@ -24,4 +26,14 @@ public class Redirect {
         return "<html><head><meta http-equiv=\"refresh\" content=\"0; url=swagger-ui.html\" /></head><body><p><a href=\"swagger-ui.html\">Redirect</a></p></body></html>";
     }
 
+    /**
+     * Just ignore this part.
+     * @return String maybe, okay, probably not.
+     * @throws ImATeapotException
+     */
+    @RequestMapping(value = "/teapot/brewcoffee", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public String brewcoffee() throws ImATeapotException {
+
+        throw new ImATeapotException();
+    }
 }

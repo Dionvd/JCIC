@@ -4,11 +4,18 @@ package rest;
 import exceptions.NotANumberException;
 
 /**
- * Class that wraps common methods for the purpose of avoiding repetitive exception replacement.
+ * Utility class that wraps common methods for the purpose of avoiding repetitive exception replacement.
  * The custom exceptions are annotated to give more appropriate HTTP errors.
  * @author dion
  */
 public class ResourceMethods {
+    
+    
+    /**
+     * Default private constructor of utility class.
+     */
+    private ResourceMethods()
+    { }
     
     /**
      * Converts a String to an int.
@@ -23,8 +30,10 @@ public class ResourceMethods {
          try {
             i = Integer.parseInt(s);
         } catch (NumberFormatException e) {
-            throw new NotANumberException(e.getMessage());
+            throw new NotANumberException(e);
         }
         return i;
     }
+    
+    
 }

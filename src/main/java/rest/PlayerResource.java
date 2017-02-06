@@ -2,7 +2,7 @@ package rest;
 
 import entity.Main;
 import entity.Player;
-import java.util.ArrayList;
+import java.util.Collection;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class PlayerResource {
      */
     @RequestMapping(value = "/players", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 
-    public Iterable<Player> getAllPlayers() {
+    public Collection<Player> getAllPlayers() {
 
         return Main.self.getPlayers();
     }
@@ -36,18 +36,10 @@ public class PlayerResource {
      * @return player matching id
      */
     @RequestMapping(value = "/players/{playerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getPlayer(@PathVariable(value = "playerId") String playerId) {
+    public Player getPlayer(@PathVariable(value = "playerId") String playerId) {
 
-        
         int i = ResourceMethods.parseInt(playerId);
-        Player p = Main.self.getPlayerById(i);
-
-
-        if (p != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(p);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error Message");
-        }
+        return Main.self.getPlayerById(i);
 
     }
 

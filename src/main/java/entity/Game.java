@@ -2,10 +2,11 @@ package entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Represents the current state of a match being played.
+ * The Game class represents the current state of a single match being played.
  * Contains game data and references to players.
  * Map is a hidden value to avoid overhead.
  * @author dion
@@ -15,9 +16,10 @@ public class Game {
     private long id = 0;
     private final AtomicLong idCounter = new AtomicLong(999);
 
-    private ArrayList<Integer> playerIds;
+    private List<Integer> playerIds;
     
-    @JsonIgnore //Map won't be dragged in to game description this way, but can still be requested.
+    //Map won't be dragged in to game description this way, but can still be requested.
+    @JsonIgnore 
     private GameMap map;
 
     @JsonIgnore 
@@ -76,15 +78,15 @@ public class Game {
         return id;
     }
 
-    public void setId(long Id) {
-        this.id = Id;
+    public void setId(long id) {
+        this.id = id;
     }
 
-    public ArrayList<Integer> getPlayerIds() {
+    public List<Integer> getPlayerIds() {
         return playerIds;
     }
 
-    public void setPlayerIds(ArrayList<Integer> playerIds) {
+    public void setPlayerIds(List<Integer> playerIds) {
         this.playerIds = playerIds;
     }
 

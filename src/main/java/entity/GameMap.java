@@ -1,16 +1,21 @@
 package entity;
 
+import exceptions.NotFoundOutOfBoundsException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * GameMap represents the current board of a round of a game, which is an ArrayList of ArrayLists of nodes.
- * This way, the first index represents y while the second index represents x. 
- * This way, when converted to JSON, the JSON is constructed as a collection of rows of nodes.
+ * GameMap represents the current board of a round of a game, which is an
+ * ArrayList of ArrayLists of nodes. The first index represents y while the
+ * second index represents x. This way, when converted to JSON, the JSON is
+ * constructed as a collection of rows of nodes. GameMap is a sub object of
+ * Game.
+ *
  * @author dion
  */
 public class GameMap {
 
-    private ArrayList<ArrayList<Node>> nodes;
+    private List<List<Node>> nodes;
 
     /**
      * default constructor.
@@ -18,13 +23,16 @@ public class GameMap {
     public GameMap() {
         nodes = new ArrayList<>();
     }
-    
+
     /**
-     * recommended constructor.
-     * generates nodes based on the given width and height
+     * recommended constructor. 
+     * generates nodes based on the given width and height.
+     *
+     * @param width
+     * @param height
      */
     public GameMap(int width, int height) {
-        
+
         nodes = new ArrayList<>();
 
         for (int i = 0; i < height; i++) {
@@ -34,10 +42,10 @@ public class GameMap {
                 nodes.get(i).add(new Node());
             }
         }
-            
+
     }
 
-     /**
+    /**
      *
      * @return
      */
@@ -51,28 +59,44 @@ public class GameMap {
      */
     public int getHeight() {
         return nodes.get(0).size();
-    }    
-    
+    }
+
+    /**
+     * Gets an entire row of nodes from the map.
+     * @param rowIndex
+     * @return List of nodes.
+     * @throws NotFoundOutOfBoundsException when index are out of bounds.
+     */
+    public List<Node> getNodesRow(int rowIndex) {
+        try {
+            return nodes.get(rowIndex);
+        } catch (IndexOutOfBoundsException e) {
+            throw new NotFoundOutOfBoundsException();
+        }
+    }
+
     /**
      * @param x coordinate as integer.
      * @param y coordinate as integer.
      * @return Node located at coordinates x and y.
+     * @throws NotFoundOutOfBoundsException when index are out of bounds.
      */
     public Node getNode(int x, int y) {
-        return nodes.get(y).get(x);
+
+        try {
+            return nodes.get(y).get(x);
+        } catch (IndexOutOfBoundsException e) {
+            throw new NotFoundOutOfBoundsException();
+        }
+
     }
 
-    
-    
-    public ArrayList<ArrayList<Node>> getNodes() {
+    public List<List<Node>> getNodes() {
         return nodes;
     }
 
-   
-    public void setNodes(ArrayList<ArrayList<Node>> nodes) {
+    public void setNodes(List<List<Node>> nodes) {
         this.nodes = nodes;
     }
-    
-  
 
 }

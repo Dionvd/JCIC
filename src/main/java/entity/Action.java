@@ -2,6 +2,7 @@
 package entity;
 
 /**
+ * The action that one of your nodes could take.
  * A node can perform an action by sending the service your list of moves. 
  * @author dion
  */
