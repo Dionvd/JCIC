@@ -20,16 +20,20 @@ public class Game {
     @JsonIgnore //Map won't be dragged in to game description this way, but can still be requested.
     private GameMap map;
 
+    @JsonIgnore 
+
     private GameRules gameRules;
     private int turn;
 
     /**
      *  Default game constructor.
+
+     * @param settings to be used to decide on game rules.
      */
-    public Game() {
+    public Game(Settings settings) {
         playerIds = new ArrayList<>();
         map = new GameMap();
-        gameRules = new GameRules();
+        gameRules = new GameRules(settings);
         turn = 0;
         id = idCounter.incrementAndGet();
 

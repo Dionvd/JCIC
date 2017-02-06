@@ -24,19 +24,24 @@ public class PlayerResource {
      * @return players (all)
      */
     @RequestMapping(value = "/players", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ArrayList<Player> getAllPlayers() {
+
+    public Iterable<Player> getAllPlayers() {
+
         return Main.self.getPlayers();
     }
 
     /**
      * Get a specific player
-     * @param id
+     * @param playerId
      * @return player matching id
      */
-    @RequestMapping(value = "/players/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getPlayer(@PathVariable(value = "id") int id) {
+    @RequestMapping(value = "/players/{playerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getPlayer(@PathVariable(value = "playerId") String playerId) {
 
-        Player p = Main.self.getPlayerById(id);
+        
+        int i = ResourceMethods.parseInt(playerId);
+        Player p = Main.self.getPlayerById(i);
+
 
         if (p != null) {
             return ResponseEntity.status(HttpStatus.OK).body(p);

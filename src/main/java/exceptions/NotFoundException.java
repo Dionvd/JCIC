@@ -6,13 +6,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- *
+ * Exception class that throws HTTP error 404 during a web service.
  * @author dion
  */
-@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "No object with this Id was found.") //404
-public class NotFoundException extends RuntimeException {
+@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "No data was found that matches these paremeters.") //404
+public class NotFoundException extends ArrayIndexOutOfBoundsException {
+
 
    
     public NotFoundException() {
     }
+    
+    public NotFoundException(String s) {
+        super(s);
+    }
+
 }

@@ -17,10 +17,12 @@ public class Main {
      */
     public static Main self;
 
-    ArrayList<Game> games;
-    ArrayList<Player> players;
-    WaitingQueue waitingQueue;
-    Settings settings;
+
+    private ArrayList<Game> games;
+    private ArrayList<Player> players;
+    private WaitingQueue waitingQueue;
+    private Settings settings;
+
 
     /**
      *  Main constructor
@@ -40,7 +42,9 @@ public class Main {
     {
         Main.self = new Main();
 
+        
         if (Main.self.settings.mockData) {
+            
             Player player = new Player("John", "password");
             player.setSessionId(11111111);
             player.setWinCount(3);
@@ -66,7 +70,9 @@ public class Main {
             player5.setWinCount(0);
             Main.self.players.add(player5);
 
-            Game game = new Game();
+
+            Game game = new Game(Main.self.settings);
+
             game.setMap(new GameMap(10, 10));
 
             Main.self.waitingQueue.setMaxCount(50);

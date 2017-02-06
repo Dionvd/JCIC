@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class SettingsResource {
 
     /**
-     *
-     * @return
+     * Gets the current settings, as chosen by the admin panel.
+     * @return settings
      */
     @RequestMapping(value = "/settings", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Settings queue() {
+    public Settings settings() {
         return Main.self.getSettings();
     }
 

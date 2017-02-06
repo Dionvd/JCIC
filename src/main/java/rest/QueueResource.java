@@ -31,7 +31,11 @@ public class QueueResource {
      * @return index of playerId in the WaitingQueue.
      */
     @RequestMapping(value = "/queue/{playerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public JsonWrapper queuePositionOfPlayer(@PathVariable(value = "playerId") int playerId) {
-        return new JsonWrapper(Main.self.getWaitingQueue().getPositionOfPlayer(playerId)+"");
+    public JsonWrapper queuePositionOfPlayer(@PathVariable(value = "playerId") String playerId) {
+        
+        int i = ResourceMethods.parseInt(playerId);
+        
+        return new JsonWrapper(Main.self.getWaitingQueue().getPositionOfPlayer(i)+"");
+
     }
 }
