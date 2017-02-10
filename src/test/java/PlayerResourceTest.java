@@ -15,10 +15,11 @@ import static org.junit.Assert.fail;
 
 public class PlayerResourceTest extends Assert {
     
-    final int TEST_ID = 1000;
-    final String TEST_NAME = "John";
+    private static final int TEST_ID = 1000;
+    private static final String TEST_NAME = "John";
+    private static final String BAD_STRING = "abc";
     
-    PlayerResource pr = new PlayerResource();
+    private PlayerResource pr = new PlayerResource();
     
     @Test
     public void getAllPlayers() {
@@ -28,7 +29,7 @@ public class PlayerResourceTest extends Assert {
         assertTrue(players.contains(Main.self.getPlayerById(TEST_ID)));
         
         int size = pr.getAllPlayers().size();
-        Main.self.getPlayers().add(new Player("",""));
+        Main.self.getPlayers().add(new Player(new Credentials("","","")));
         assertEquals(size+1, Main.self.getPlayers().size());
     }
     
@@ -42,7 +43,7 @@ public class PlayerResourceTest extends Assert {
         try { pr.getPlayer("0"); fail("expected NotFoundException"); }
         catch(NotFoundException e) { }
         
-        try { pr.getPlayer("abc"); fail("expected NotANumberException"); }
+        try { pr.getPlayer(BAD_STRING); fail("expected NotANumberException"); }
         catch(NotANumberException e) { }
     }
     

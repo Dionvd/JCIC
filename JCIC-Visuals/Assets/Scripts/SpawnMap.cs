@@ -5,23 +5,23 @@ using UnityEngine;
 public class SpawnMap : MonoBehaviour {
 
 	public GameObject hexagonPrefab;
-	GameObject[,] map;
+	Node[,] map;
 
-	public Material orange;
-	public Material blue;
-	public Material red;
 
 	// Use this for initialization
 	void Start () {
-		map = new GameObject[10,10];
+		map = new Node[10,10];
 
-		for(int y = 0; y < 10; y++)
-			for(int x = 0; x < 10; x++)
-				map[x,y] = Instantiate (hexagonPrefab, new Vector3(x+(y%2/2f),0,-y*0.9f), this.transform.rotation);
-	
+		for (int y = 0; y < 10; y++)
+			for (int x = 0; x < 10; x++) {
+				GameObject obj = Instantiate (hexagonPrefab, new Vector3 (x + (y % 2 / 2f), 0, -y * 0.9f), this.transform.rotation);
+				map[x, y] = new Node (0, 0, 0, obj);
+			}
+		map [0, 0].OwnerId = 1;
+		map [9, 9].OwnerId = 2;
 
-		map[0,0].transform.GetChild(1).GetComponent<Renderer>().material = blue;
-		map[9,9].transform.GetChild(1).GetComponent<Renderer>().material = red;
+		map [0, 0].setColorByOwner ();
+		map [9, 9].setColorByOwner ();
 
 	}
 	

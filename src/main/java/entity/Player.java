@@ -3,6 +3,7 @@ package entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.tomcat.jni.Time;
 
 /**
  * Player class. Contains all account and player data of one person.
@@ -13,117 +14,129 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Player {
 
     private long id;
-    private final AtomicLong idCounter = new AtomicLong(999);
+    private static final AtomicLong ID_COUNTER = new AtomicLong(999);
     
     private String username;
 
+    //The email is used to login, and will not be shown to protect bots from automatically blocking login attempts.
+    @JsonIgnore
+    private String email;
+    
     @JsonIgnore
     private String password;
 
     @JsonIgnore
-    private int sessionId;
+    private String sessionId = "";
 
     private int winCount;
 
+    private boolean blocked = false;
     
+    @JsonIgnore
+    private long blockedTime;
+    
+    @JsonIgnore
+    private int failedLoginCount;
+
     
     /**
      * Default constructor, sets the id automatically.
      */
     public Player()
     {
-        id = idCounter.incrementAndGet();
+        id = ID_COUNTER.incrementAndGet();
     }
     
     /**
      * normal constructor, sets username and password and sets the id automatically.
-     * @param username
-     * @param password
+     * @param credentials with email, password and name
      */
-    public Player(String username, String password) {
-        this.username = username;
-        this.password = password;
-        id = idCounter.incrementAndGet();
+    public Player(Credentials credentials) {
+        this.username = credentials.getUsername();
+        this.password = credentials.getPassword();
+        this.email = credentials.getEmail();
+        id = ID_COUNTER.incrementAndGet();
     }
 
-    /**
-     *
-     * @return
-     */
+    
+    public boolean checkUnblocked()
+    {
+        if (blockedTime < System.currentTimeMillis())
+        {    
+            blocked = false;
+            failedLoginCount = 0;
+            
+        }
+        return !blocked;
+    }
+    
+    public void block(int minutes)
+    {
+        //blocks this player for a few minutes.
+        blocked = true;
+        blockedTime = System.currentTimeMillis()+1000*60*minutes;
+    }
+    
+    public void incrementFailedLoginCount()
+    {
+        failedLoginCount++;
+    }
+    
     public long getId() {
         return id;
     }
 
-    /**
-     *
-     * @param playerId
-     */
     public void setId(long playerId) {
         this.id = playerId;
     }
 
-    /**
-     *
-     * @return
-     */
     public String getUsername() {
         return username;
     }
 
-    /**
-     *
-     * @param username
-     */
     public void setUsername(String username) {
         this.username = username;
     }
 
-    /**
-     *
-     * @return
-     */
     public String getPassword() {
         return password;
     }
 
-    /**
-     *
-     * @param password
-     */
     public void setPassword(String password) {
         this.password = password;
     }
 
-    /**
-     *
-     * @return
-     */
-    public int getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
-    /**
-     *
-     * @param sessionId
-     */
-    public void setSessionId(int sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 
-    /**
-     *
-     * @return
-     */
     public int getWinCount() {
         return winCount;
     }
 
-    /**
-     *
-     * @param winCount
-     */
     public void setWinCount(int winCount) {
         this.winCount = winCount;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    public int getFailedLoginCount() {
+        return failedLoginCount;
+    }
+
+    
 }

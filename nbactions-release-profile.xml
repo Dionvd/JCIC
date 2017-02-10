@@ -6,10 +6,8 @@
                 <packaging>jar</packaging>
             </packagings>
             <goals>
-                <goal>surefire:test</goal>
                 <goal>process-classes</goal>
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
-                
             </goals>
             <properties>
                 <exec.args>-classpath %classpath app.Application</exec.args>
@@ -22,7 +20,6 @@
                 <packaging>jar</packaging>
             </packagings>
             <goals>
-                <goal>surefire:test</goal>
                 <goal>process-classes</goal>
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
@@ -45,15 +42,5 @@
                 <exec.args>-classpath %classpath app.Application</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
-        </action>
-        <action>
-            <actionName>build</actionName>
-            <packagings>
-                <packaging>*</packaging>
-            </packagings>
-            <goals>
-                <goal>install</goal>
-                <goal>surefire:test</goal>
-            </goals>
         </action>
     </actions>

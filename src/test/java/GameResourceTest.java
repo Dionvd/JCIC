@@ -11,12 +11,13 @@ import rest.*;
 
 public class GameResourceTest extends Assert {
    
-    GameResource gr = new GameResource();
-    final int TEST_GAME_ID = 1000;
-    final int TEST_PLAYER_ID = 1000;
-    final int TEST_MAP_SIZE = 10;
-    final int TEST_TURN = 4;
-    final String BAD_STRING = "abc";
+    private GameResource gr = new GameResource();
+    
+    private static final int TEST_GAME_ID = 1000;
+    private static final int TEST_PLAYER_ID = 1000;
+    private static final int TEST_MAP_SIZE = 10;
+    private static final int TEST_TURN = 4;
+    private static final String BAD_STRING = "abc";
     
     @Test
     public void getGames() {

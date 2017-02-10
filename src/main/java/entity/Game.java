@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Game {
 
     private long id = 0;
-    private final AtomicLong idCounter = new AtomicLong(999);
+    private static final AtomicLong ID_COUNTER = new AtomicLong(999);
 
     private List<Integer> playerIds;
     
@@ -37,7 +37,7 @@ public class Game {
         map = new GameMap();
         gameRules = new GameRules(settings);
         turn = 0;
-        id = idCounter.incrementAndGet();
+        id = ID_COUNTER.incrementAndGet();
 
     }
 

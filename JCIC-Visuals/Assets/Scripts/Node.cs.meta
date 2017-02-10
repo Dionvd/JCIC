@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: ff1855c5a34414a179c33d5c2f1f5205
+timeCreated: 1486634886
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - white: {fileID: 2100000, guid: a5ab27f24d140594197755b8c9ee7179, type: 2}
+  - orange: {fileID: 2100000, guid: 5a9e6cf91cbfc1a4fbc9470cca37b97a, type: 2}
+  - blue: {fileID: 2100000, guid: d3fdd53a2b5dd904fad8d824266a4cad, type: 2}
+  - red: {fileID: 2100000, guid: 6a6944f4904547e4fb039789da5fcd85, type: 2}
+  - green: {fileID: 2100000, guid: efe6fc25350958c479cd9fcde7e565f9, type: 2}
+  - purple: {fileID: 2100000, guid: 152a75409221b6244be7b0063172b666, type: 2}
+  - yellow: {fileID: 2100000, guid: 640dc2f025ee433489ca50d9f685de47, type: 2}
+  - pink: {fileID: 2100000, guid: 34a2d4fc8f422c345a4cc739f3ee3b81, type: 2}
+  - gameObject: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

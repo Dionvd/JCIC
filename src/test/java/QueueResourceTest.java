@@ -19,14 +19,13 @@ import rest.QueueResource;
  */
 public class QueueResourceTest extends Assert {
     
-    final int TEST_ID = 1002;
-    final int TEST_ID_NOT_IN_QUEUE = 1000;
-    final String BAD_ID = "123";
-    final int TEST_POS = 1;
+    private static final int TEST_ID = 1002;
+    private static final int TEST_ID_NOT_IN_QUEUE = 1000;
+    private static final String BAD_ID = "123";
+    private static final String BAD_STRING = "abc";
+    private static final int TEST_POS = 1;
     
-    
-    
-    QueueResource qr = new QueueResource();
+    private QueueResource qr = new QueueResource();
     
     
     @Test
@@ -52,7 +51,10 @@ public class QueueResourceTest extends Assert {
         try { qr.queuePositionOfPlayer(TEST_ID_NOT_IN_QUEUE+""); fail("expected NotFoundException"); }
         catch(NotFoundException e) { }
         
-        try { qr.queuePositionOfPlayer("abc"); fail("expected NotANumberException"); }
+        try { qr.queuePositionOfPlayer(BAD_ID+""); fail("expected NotFoundException"); }
+        catch(NotFoundException e) { }
+        
+        try { qr.queuePositionOfPlayer(BAD_STRING); fail("expected NotANumberException"); }
         catch(NotANumberException e) { }
     }
     

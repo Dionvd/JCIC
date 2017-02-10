@@ -19,9 +19,7 @@ import rest.SettingsResource;
  */
 public class SettingsResourceTest extends Assert {
     
-    final int TEST_ID = 1000;
-   
-    SettingsResource sr = new SettingsResource();
+    private SettingsResource sr = new SettingsResource();
     
     
     @Test

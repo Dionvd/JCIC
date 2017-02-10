@@ -8,7 +8,7 @@ import exceptions.NotANumberException;
  * The custom exceptions are annotated to give more appropriate HTTP errors.
  * @author dion
  */
-public class ResourceMethods {
+public final class ResourceMethods {
     
     
     /**

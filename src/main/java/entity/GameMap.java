@@ -71,7 +71,7 @@ public class GameMap {
         try {
             return nodes.get(rowIndex);
         } catch (IndexOutOfBoundsException e) {
-            throw new NotFoundOutOfBoundsException();
+            throw new NotFoundOutOfBoundsException(e);
         }
     }
 
@@ -86,7 +86,7 @@ public class GameMap {
         try {
             return nodes.get(y).get(x);
         } catch (IndexOutOfBoundsException e) {
-            throw new NotFoundOutOfBoundsException();
+            throw new NotFoundOutOfBoundsException(e);
         }
 
     }
