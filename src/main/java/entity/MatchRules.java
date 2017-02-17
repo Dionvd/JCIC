@@ -5,21 +5,21 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * GameRules contains the selected rules of a single match. 
- * GameRules is a sub object of Game.
+ * MatchRules contains the selected rules of a single match. 
+ * MatchRules is a sub object of Match.
  * Not to be confused with the Settings class, which contains global settings and rules.
  * Many game rules are derived from the Settings class.
  * @author dion
  */
-public class GameRules {
+public class MatchRules {
 
     static final int MAX_POWER = 100;
     
-    private Map<Action, Integer> actionCosts = new EnumMap<>(Action.class);
-    private double fluctuation;
+    private final Map<Action, Integer> actionCosts = new EnumMap<>(Action.class);
+    private final double fluctuation;
     
     
-    public GameRules(Settings settings) {
+    public MatchRules(Settings settings) {
 
         this.fluctuation = settings.getGameRuleFluctuation();
 

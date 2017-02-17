@@ -23,7 +23,7 @@ public class Main {
     private final static int BLOCKED_ON_FAILED_LOGIN_ATTEMPTS = 5;
     private final static int BLOCKED_TIMEOUT_MINUTES = 5;
     
-    private List<Game> games;
+    private List<Match> games;
     private List<Player> players;
     private WaitingQueue waitingQueue;
     private Settings settings;
@@ -67,9 +67,9 @@ public class Main {
             player5.setWinCount(0);
             Main.self.players.add(player5);
 
-            Game game = new Game(Main.self.settings);
+            Match game = new Match(Main.self.settings);
 
-            game.setMap(new GameMap(10, 10));
+            game.setMap(new MatchMap(10, 10));
             game.setTurn(4);
 
             Main.self.waitingQueue.setMaxCount(50);
@@ -98,8 +98,8 @@ public class Main {
      * @return Game with matching id
      * @throws NotFoundException occurs when no id exists (error 404).
      */
-    public Game getGameById(int id) {
-        for (Game g : games) {
+    public Match getGameById(int id) {
+        for (Match g : games) {
             if (g.getId() == id) {
                 return g;
             }
@@ -184,15 +184,15 @@ public class Main {
     }
 
     
-    public List<Game> getGames() {
+    public List<Match> getGames() {
         return games;
     }
 
-    public Game getGame(int i) {
+    public Match getGame(int i) {
         return games.get(i);
     }
 
-    public void setGames(List<Game> games) {
+    public void setGames(List<Match> games) {
         this.games = games;
     }
 

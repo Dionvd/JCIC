@@ -53,4 +53,12 @@ public class WaitingQueue {
         }
         return i+1;
     }
+
+    /**
+     * Used during game creation, Removes the first waiting player from the queue.
+     * @return playerId that was removed from the list
+     */
+    public int getAndRemoveFirst() {
+        return this.playerIds.remove(0);
+    }
 }

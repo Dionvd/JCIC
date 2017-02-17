@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * GameMap represents the current board of a round of a game, which is an
+ * MatchMap represents the current board of a round of the game, which is an
  * ArrayList of ArrayLists of nodes. The first index represents y while the
  * second index represents x. This way, when converted to JSON, the JSON is
  * constructed as a collection of rows of nodes. GameMap is a sub object of
@@ -13,14 +13,14 @@ import java.util.List;
  *
  * @author dion
  */
-public class GameMap {
+public class MatchMap {
 
     private List<List<Node>> nodes;
 
     /**
      * default constructor.
      */
-    public GameMap() {
+    public MatchMap() {
         nodes = new ArrayList<>();
     }
 
@@ -31,7 +31,7 @@ public class GameMap {
      * @param width
      * @param height
      */
-    public GameMap(int width, int height) {
+    public MatchMap(int width, int height) {
 
         nodes = new ArrayList<>();
 

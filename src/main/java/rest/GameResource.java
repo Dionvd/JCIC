@@ -26,7 +26,7 @@ public class GameResource {
      * @return ArrayList of all games.
      */
     @RequestMapping(value = "")
-    public Collection<Game> getGames() {
+    public Collection<Match> getGames() {
         return Main.self.getGames();
     }
 
@@ -39,7 +39,7 @@ public class GameResource {
      * @return game matching gameId.
      */
     @RequestMapping(value = "/{gameId}")
-    public Game getGame(@PathVariable(value = "gameId") String gameId) {
+    public Match getGame(@PathVariable(value = "gameId") String gameId) {
 
         int i = ResourceMethods.parseInt(gameId);
         return Main.self.getGameById(i);
@@ -52,10 +52,10 @@ public class GameResource {
      * @return map of game matching gameId.
      */
     @RequestMapping(value = "/{gameId}/map")
-    public GameMap getGameMap(@PathVariable(value = "gameId") String gameId) {
+    public MatchMap getGameMap(@PathVariable(value = "gameId") String gameId) {
 
         int i = ResourceMethods.parseInt(gameId);
-        Game g = Main.self.getGameById(i);
+        Match g = Main.self.getGameById(i);
         return g.getMap();
     }
 
@@ -75,7 +75,7 @@ public class GameResource {
         int i = ResourceMethods.parseInt(gameId);
         int iy = ResourceMethods.parseInt(row);
         
-        Game g = Main.self.getGameById(i);
+        Match g = Main.self.getGameById(i);
         return g.getMap().getNodesRow(iy);
     }
 
@@ -99,7 +99,7 @@ public class GameResource {
         int ix = ResourceMethods.parseInt(x);
         int iy = ResourceMethods.parseInt(y);
         
-        Game g = Main.self.getGameById(i);
+        Match g = Main.self.getGameById(i);
         return g.getMap().getNode(ix, iy);
     }
 
@@ -114,7 +114,7 @@ public class GameResource {
     public Collection<Integer> getGamePlayers(@PathVariable(value = "gameId") String gameId) {
 
         int i = ResourceMethods.parseInt(gameId);
-        Game g = Main.self.getGameById(i);
+        Match g = Main.self.getGameById(i);
         return g.getPlayerIds();
     }
     /**
@@ -128,7 +128,7 @@ public class GameResource {
     public JsonWrapper getGameTurn(@PathVariable(value = "gameId") String gameId) {
 
         int i = ResourceMethods.parseInt(gameId);
-        Game g = Main.self.getGameById(i);
+        Match g = Main.self.getGameById(i);
         return new JsonWrapper(g.getTurn());
     }
 
@@ -139,10 +139,10 @@ public class GameResource {
      * @return rules of game matching gameId.
      */
     @RequestMapping(value = "/{gameId}/rules")
-    public GameRules getGameRules(@PathVariable(value = "gameId") String gameId) {
+    public MatchRules getGameRules(@PathVariable(value = "gameId") String gameId) {
 
         int i = ResourceMethods.parseInt(gameId);
-        Game g = Main.self.getGameById(i);
+        Match g = Main.self.getGameById(i);
         return g.getGameRules();
     }
 }

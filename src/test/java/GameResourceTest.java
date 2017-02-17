@@ -25,9 +25,9 @@ public class GameResourceTest extends Assert {
         assertTrue(gr.getGames() == Main.self.getGames());
 
         assertEquals(gr.getGames().size(), 1);
-        Main.self.getGames().add(new Game(Main.self.getSettings()));
+        Main.self.getGames().add(new Match(Main.self.getSettings()));
         assertEquals(gr.getGames().size(), 2);
-        Main.self.getGames().add(new Game(Main.self.getSettings()));
+        Main.self.getGames().add(new Match(Main.self.getSettings()));
         assertEquals(gr.getGames().size(), 3);
         
         assertTrue(gr.getGames().contains(Main.self.getGameById(TEST_GAME_ID)));
@@ -151,7 +151,7 @@ public class GameResourceTest extends Assert {
     @Test
     public void getGameRules() {
 
-        GameRules rules = gr.getGameRules(TEST_GAME_ID+"");
+        MatchRules rules = gr.getGameRules(TEST_GAME_ID+"");
         assertTrue(!rules.getActionCosts().isEmpty());
         assertTrue(rules.getActionCosts().get(Action.SPREAD) > 0);
         

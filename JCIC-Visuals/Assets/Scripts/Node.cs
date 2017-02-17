@@ -16,10 +16,17 @@ public class Node {
 		this.Power = Power;
 		this.gameObject = gameObject;
 
-		setColorByOwner();
+		SetColorByOwner();
 	}
 
-	public void setColorByOwner()
+	public Node(JSONObject JsonNode)
+	{
+		this.Power = int.Parse(JsonNode.GetField ("power").ToString());
+		this.Type = int.Parse(JsonNode.GetField ("type").ToString());
+		this.OwnerId = int.Parse(JsonNode.GetField ("ownerId").ToString());
+	}
+
+	public void SetColorByOwner()
 	{
 		if (OwnerId == 0)
 			return;
