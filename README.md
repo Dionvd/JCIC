@@ -36,6 +36,14 @@ The features that will be implemented are placed on a JIRA project with the same
 To get the latest stable code, please use the master branch.
 
 
+# Code Coverage
+JCIC uses JaCoCo for Java code coverage. To build with JaCoCo you must use the following Maven Commands :
+-mvn clean test
+-mvn jacoco:report
+
+You can run these manually through a terminal or you can add these to the Maven Build of Netbeans. 
+In Netbeans you can do this through Options -> Java -> Maven -> Edit Global Custom Goal Definitions -> Add
+
 # Class Structure
 Classes within the entity package are entity classes. These entity classes represent the data that can be transferred or shared by web services.
 Classes within the rest package are RESTful web service classes. Besides a few helping classes most of these classes use Spring to create a web service that shares game data.
