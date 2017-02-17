@@ -20,8 +20,8 @@ public class Main {
      */
     public static Main self;
 
-    private final static int BLOCKED_ON_FAILED_LOGIN_ATTEMPTS = 5;
-    private final static int BLOCKED_TIMEOUT_MINUTES = 5;
+    private static final int BLOCKED_ON_FAILED_LOGIN_ATTEMPTS = 5;
+    private static final int BLOCKED_TIMEOUT_MINUTES = 5;
     
     private List<Match> games;
     private List<Player> players;
@@ -135,11 +135,9 @@ public class Main {
         for (Player p : players) {
             if (p.getUsername().equals(c.getUsername())) {
                 //username matches, check if this user is blocked or not.
-                if (p.isBlocked()) {
+                if (p.isBlocked() && !p.checkUnblocked()) {
                     //user is blocked, check if he should be blocked.
-                    if (!p.checkUnblocked()) {
-                        throw new BlockedException();
-                    }
+                    throw new BlockedException();
                 }
                 //user is not blocked, check if credentials match.
                 if (p.getPassword().equals(c.getPassword()) && p.getEmail().equals(c.getEmail())) {

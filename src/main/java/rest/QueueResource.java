@@ -57,7 +57,7 @@ public class QueueResource {
         //Verify sessionToken
         boolean success = Main.self.checkSessionToken(i, sessionToken);
         
-        if (!success) throw new FailedLoginException();
+        if (!success) { throw new FailedLoginException(); }
         int queuePos;
         
         try {

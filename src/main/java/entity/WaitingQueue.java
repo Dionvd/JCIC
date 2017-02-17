@@ -2,6 +2,7 @@ package entity;
 
 import exceptions.NotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The Waiting Queue class is responsible for keeping track of bots currently waiting to playing a game.
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 public class WaitingQueue {
 
     private int maxCount = 100;
-    private ArrayList<Integer> playerIds;
+    private List<Integer> playerIds;
 
     /**
      *  Default constructor.
@@ -30,11 +31,11 @@ public class WaitingQueue {
         this.maxCount = maxCount;
     }
 
-    public ArrayList<Integer> getPlayerIds() {
+    public List<Integer> getPlayerIds() {
         return playerIds;
     }
 
-    public void setPlayerIds(ArrayList<Integer> playerIds) {
+    public void setPlayerIds(List<Integer> playerIds) {
         this.playerIds = playerIds;
     }
 

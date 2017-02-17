@@ -11,7 +11,7 @@ public class Node {
     private int power = 0;
     private int ownerId = 0;
     
-    //-1 = empty, 0 = normal; 1 = powerline; 2 = overclocked; 3 = guarded; 4 = storage;
+    //-1 = empty, 0 = normal, 1 = powerline, 2 = overclocked, 3 = guarded, 4 = storage
     private int type = 0; 
 
     /**

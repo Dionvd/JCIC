@@ -13,11 +13,13 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class Match {
 
+    private static final int PLAYER_SIZE_MAX = 4;
+    
     private long id = 0;
     private static final AtomicLong ID_COUNTER = new AtomicLong(999);
 
     private List<Integer> playerIds;
-    private int playerSize = 4;
+    private int playerSize = PLAYER_SIZE_MAX;
     
     //Map won't be dragged in to game description this way, but can still be requested.
     @JsonIgnore 

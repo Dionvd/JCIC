@@ -5,7 +5,6 @@ package rest;
 import entity.*;
 import exceptions.FailedLoginException;
 import exceptions.FailedRegisterException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class LoginResource {
 
+    private static final int SESSION_LENGTH_IN_SECONDS = 120;
+    
     /**
      * Logs in with the given credentials.
      * @param credentials
@@ -32,8 +33,6 @@ public class LoginResource {
         
         //after 2 minutes of inactivity, the session expires...
         sessionLeaveEmpty.setMaxInactiveInterval(60*2);
-        
-        HttpSession session;
         
         //check if credentials match
         Player player = Main.self.getPlayerByLogin(credentials);
@@ -55,7 +54,7 @@ public class LoginResource {
     public JsonWrapper registerAndLogin(@RequestBody Credentials credentials, HttpSession sessionLeaveEmpty) throws FailedRegisterException {
         
         //after 2 minutes of inactivity, the session expires...
-        sessionLeaveEmpty.setMaxInactiveInterval(60*2);
+        sessionLeaveEmpty.setMaxInactiveInterval(SESSION_LENGTH_IN_SECONDS);
         
         //check if credentials are good and if so, make a new player with these credentials.
         Main.self.registerWithCredentials(credentials);

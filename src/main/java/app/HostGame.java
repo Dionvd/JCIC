@@ -1,5 +1,6 @@
 package app;
 
+import entity.Settings;
 import static java.lang.Thread.sleep;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -10,7 +11,9 @@ import java.util.logging.Logger;
  */
 public class HostGame {
     
-   
+   private HostGame(Settings settings)
+   {
+   }
     
     public static void run()
     {
@@ -18,7 +21,7 @@ public class HostGame {
         {
             try {
                 System.out.println("Game is running...");
-                sleep(3000);
+                sleep(300);
                 
             } catch (InterruptedException ex) {
                 Logger.getLogger(HostGame.class.getName()).log(Level.SEVERE, null, ex);
