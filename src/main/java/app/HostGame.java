@@ -1,6 +1,5 @@
 package app;
 
-import entity.Settings;
 import static java.lang.Thread.sleep;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,10 +10,13 @@ import java.util.logging.Logger;
  */
 public class HostGame {
     
-   private HostGame(Settings settings)
-   {
-   }
+    private HostGame()
+    {
+    }
     
+    /**
+     * Runs the game logic
+     */
     public static void run()
     {
         while (true)

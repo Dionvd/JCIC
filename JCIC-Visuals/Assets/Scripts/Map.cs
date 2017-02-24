@@ -5,6 +5,9 @@ public class Map
 {
 	private Node[,] Nodes;
 
+	public int X = 5;
+	public int Y = 5;
+
 	public Map()
 	{
 		Nodes = new Node[10,10];	
@@ -34,6 +37,8 @@ public class Map
 		get {return Nodes [x, y]; }
 		set { Nodes [x, y] = value; }
 	}
+
+
 }
 
 

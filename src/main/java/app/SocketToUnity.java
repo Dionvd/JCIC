@@ -2,15 +2,16 @@
 
 package app;
 
+import app.dao.MatchRepository;
+import app.entity.MatchMap;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static app.SocketToUnity.sendUpdate;
-import entity.Main;
 import java.net.SocketException;
+import javax.inject.Inject;
 import org.json.JSONObject;
 
 /**
@@ -25,8 +26,11 @@ public class SocketToUnity {
     private static Socket socket;
     private static OutputStream os;
     
+    
+    
     public static void run()
     {
+        
         try {
             System.out.println("Starting socket server...");
 
@@ -69,6 +73,7 @@ public class SocketToUnity {
         //SEND PLAYER INFO && STUFF
     }
     
+    
     public static void sendUpdate()
     {
         //SEND MAP
@@ -78,7 +83,7 @@ public class SocketToUnity {
             os = socket.getOutputStream();
             
             // prepare sending
-            JSONObject json = new JSONObject(Main.self.getGame(0).getMap());
+            JSONObject json = new JSONObject(getMap());
             
             String toSend = json.toString();
             byte[] toSendBytes = toSend.getBytes();
@@ -120,5 +125,11 @@ public class SocketToUnity {
         } catch (IOException ex) {
             Logger.getLogger(SocketToUnity.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public static MatchMap getMap()
+    {
+        return null;
+        //TODO
     }
 }

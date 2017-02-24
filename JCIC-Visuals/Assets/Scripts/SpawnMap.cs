@@ -28,14 +28,15 @@ public class SpawnMap : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (gameMapUpdate != null) {
-			Debug.Log ("Map updated!");
 
 			JSONObject newMap = gameMapUpdate.GetField ("nodes");
 			gameMapUpdate = null;
 
-			Map map = new Map (newMap);
-			UpdateMap (map);
-
+			if (newMap != null) {
+				Map map = new Map (newMap);
+				UpdateMap (map);
+				Debug.Log ("Map updated!");
+			}
 		}
 	}
 
@@ -44,7 +45,8 @@ public class SpawnMap : MonoBehaviour {
 		for (int y = 0; y < 10; y++) {
 			for (int x = 0; x < 10; x++) {
 				if (map [x, y] == null) {
-					GameObject obj = Instantiate (hexagonPrefab, new Vector3 (x + (y % 2 / 2f), 0, -y * 0.9f), this.transform.rotation);
+					GameObject obj = Instantiate (hexagonPrefab, new Vector3 (x + (y % 2 / 2f) - map.X , 0, (-y+map.Y) * 0.9f), this.transform.rotation);
+					Debug.Log (map.X);
 					map [x, y] = newMap [x, y];
 					map [x, y].gameObject = obj;
 					map [x, y].SetColorByOwner ();
