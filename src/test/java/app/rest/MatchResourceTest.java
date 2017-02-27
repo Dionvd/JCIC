@@ -1,46 +1,144 @@
+package app.rest;
+
+
+import app.dao.MatchRepository;
+import app.entity.*;
+import app.service.MatchService;
+import java.util.ArrayList;
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.MockitoJUnitRunner;
+
+/**
+ * RESTful Web Service Unit Test of Match Resource.
+ *
+ * @author dion
+ */
+@RunWith(MockitoJUnitRunner.class)
+public class MatchResourceTest extends Assert {
+
+    @InjectMocks
+    private MatchResource matchResource;
+
+    @Mock
+    private MatchService matchService;
+
+    @Mock
+    private MatchRepository matchRepository;
+
+    private static final String TEST_ID_STRING = "1234567890";
+    private static final long TEST_ID_LONG = 1234567890L;
+
+    private Iterable<Match> matches;
+    
+    private Match match;
+
+    @Before
+    public void init() throws Exception {
+        
+        //CREATE A MATCH
+        match = new Match(new Settings());
+
+        match.setMap(new MatchMap(10, 10, match.getId()));
+        match.setTurn(4);
+        match.setId(TEST_ID_LONG);
+
+        Node startNode = match.getMap().getNode(0, 0);
+        startNode.setOwnerId(0L);
+        startNode.setPower(50);
+
+        Node startNode2 = match.getMap().getNode(9, 9);
+        startNode2.setOwnerId(1);
+        startNode2.setPower(50);
+
+        match.getPlayerIds().add(0L);
+        match.getPlayerIds().add(1L);
+        
+        ArrayList<Match> matchesList = new ArrayList<Match>();
+        matchesList.add(match);
+        matches = matchesList;
+
+    }
+    
+    @Test
+    public void testGetMatches() {
+
+        when(matchService.findAll()).thenReturn(matches);
+        
+        Iterable<Match> foundMatches = matchResource.getMatches();
+        verify(matchService).findAll();
+        assertEquals(matches, foundMatches);
+    }
+    
+    @Test
+    public void testGetMatch() {
+        
+        when(matchService.findOne(TEST_ID_LONG)).thenReturn(match);
+        
+        Match foundMatch = matchResource.getMatch(TEST_ID_STRING);
+        verify(matchService).findOne(TEST_ID_LONG);
+        assertEquals(TEST_ID_LONG, foundMatch.getId());
+    }
+
+    @Test
+    public void testGetMatchMap() {
+        
+        when(matchService.findOne(TEST_ID_LONG)).thenReturn(match);
+        
+        MatchMap foundMatchMap = matchResource.getMatchMap(TEST_ID_STRING);
+        verify(matchService).findOne(TEST_ID_LONG);
+        assertEquals(match.getMap(), foundMatchMap);
+
+    }
+
+    @Test
+    public void testGetMatchMapNode() {
+        
+        matchResource.getMatchMapNode(TEST_ID_STRING, TEST_ID_STRING, TEST_ID_STRING);
+    }
+
+    @Test
+    public void testGetMatchPlayers() {
+        
+        matchResource.getMatchPlayers(TEST_ID_STRING);
+    }
+
+    @Test
+    public void testGetMatchPlayer() {
+        matchResource.getMatchPlayer(TEST_ID_STRING, TEST_ID_STRING);
+    }
+
+    @Test
+    public void testGetMatchTurn() {
+        matchResource.getMatchTurn(TEST_ID_STRING);
+    }
+   
+    @Test
+    public void testGetMatchRules() {
+        matchResource.getMatchRules(TEST_ID_STRING);
+    }
+
+    
+    
+
+    //  ArrayList list = Lists.newArrayList(ms.findAll());
+    //assertTrue(list.size() > 0);
 //
-//import app.rest.MatchResource;
-//import app.exceptions.NotFoundException;
-//import app.exceptions.NotFoundOutOfBoundsException;
-//import app.exceptions.NotANumberException;
-//import app.entity.Match;
-//import app.entity.MatchRules;
-//import app.entity.Action;
-//import app.entity.Main;
-//import app.entity.JsonWrapper;
-//import org.junit.*;
-//
-///**
-// * RESTful Web Service Unit Test of Match Resource.
-// * @author dion
-// */
-//
-//public class MatchResourceTest extends Assert {
-//   
-//    private MatchResource mr = new MatchResource();
-//    
-//    private static final int TEST_GAME_ID = 0;
-//    private static final int TEST_PLAYER_ID = 0;
-//    private static final int TEST_MAP_SIZE = 10;
-//    private static final int TEST_TURN = 4;
-//    private static final String BAD_STRING = "abc";
-//    
-//    @Test
-//    public void getMatches() {
-//      
-////        assertTrue(mr.getMatches() == Main.self.getMatches());
-////
-////        assertEquals(mr.getMatches().size(), 1);
-////        Main.self.getMatches().add(new Match(Main.self.getSettings()));
-////        assertEquals(mr.getMatches().size(), 2);
-////        Main.self.getMatches().add(new Match(Main.self.getSettings()));
-////        assertEquals(mr.getMatches().size(), 3);
-////        
-////        assertTrue(mr.getMatches().contains(Main.self.getMatchById(TEST_GAME_ID)));
-////        assertTrue(mr.getMatches() == Main.self.getMatches());
-////        
-//    }
-//    
+//        assertEquals(mr.getMatches().size(), 1);
+//        Main.self.getMatches().add(new Match(Main.self.getSettings()));
+//        assertEquals(mr.getMatches().size(), 2);
+//        Main.self.getMatches().add(new Match(Main.self.getSettings()));
+//        assertEquals(mr.getMatches().size(), 3);
+//        
+//        assertTrue(mr.getMatches().contains(Main.self.getMatchById(TEST_GAME_ID)));
+//        assertTrue(mr.getMatches() == Main.self.getMatches());
+//        
+//}
+
 //    @Test
 //    public void getMatch() {
 //        
@@ -167,4 +265,7 @@
 //        try { mr.getMatchRules(BAD_STRING); fail("expected NotANumberException"); }
 //        catch(NotANumberException e) { }
 //    }
-//}
+
+    
+    
+}

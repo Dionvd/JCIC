@@ -1,23 +1,25 @@
 package app.rest;
 
-import app.exceptions.ImATeapotException;
+import app.exception.ImATeapotException;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-//import springfox.documentation.annotations.ApiIgnore;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
- * Simple RESTful web service resource for redirections.
- * There's also something else, but just ignore that.
+ * Simple RESTful web service resource for redirections. There's also something
+ * else, but just ignore that.
+ *
  * @author dion
  */
-//@ApiIgnore
+@ApiIgnore
 @RestController
 public class Redirect {
 
     /**
-     * Redirects  from home page ("/") to swagger.
+     * Redirects from home page ("/") to swagger.
+     *
      * @return HTML String
      */
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
@@ -28,6 +30,7 @@ public class Redirect {
 
     /**
      * Just ignore this part.
+     *
      * @return String maybe, okay, probably not.
      * @throws ImATeapotException
      */

@@ -6,7 +6,7 @@ For more info visit http://joyofcoding.org/
 # License
 The JCIC project is made possible by Finalist, and by their choice, this code is completely open-source. 
 Therefor this project uses the Creative Commons (CC0) License. Anyone can view or copy this code for their own purposes and create derivative work for both personal and commercial use. This project uses plugins and libraries from other sources to which this CC0 license does not extend, and these may have their own licenses. 
-By using this code it is now yours, and we are no longer responsible for what happens with it in any way. 
+By using this source code it is now yours, and we are no longer responsible for what happens with it in any way. 
 Please read the license : https://creativecommons.org/publicdomain/zero/1.0/
 
 
@@ -41,18 +41,25 @@ JCIC uses JaCoCo for Java code coverage. To build with JaCoCo you must use the f
 -mvn clean test
 -mvn jacoco:report
 
-You can run these manually through a terminal or you can add these to the Maven Build of Netbeans. 
-In Netbeans you can do this through Options -> Java -> Maven -> Edit Global Custom Goal Definitions -> Add
+You can run these manually through a terminal if you have Maven installed; or you can add these to the Maven Build of Netbeans. 
+In Netbeans you can do this through Options -> Java -> Maven -> Edit Global Custom Goal Definitions -> Add.
+Then, you will have to "build with dependencies". 
+
+JaCoCo generates a website with all the data on it. You can find the site at target -> site -> index.html.
+
 
 # Class Structure
-Classes within the entity package are entity classes. These entity classes represent the data that can be transferred or shared by web services.
-Classes within the rest package are RESTful web service classes. Besides a few helping classes most of these classes use Spring to create a web service that shares game data.
-Classes within the exception package are custom exceptions with Spring annotations that help with better HTTP error handling.
+app : Contains application, config and threading classes for running the application.
+app.entity : Entity classes represent the data objects that can be stored by the application or shared by web services.
+app.dao : Data access layer, Spring-data Repository package.
+app.service : Service layer, contains service logic that validates requests.
+app.rest : Resource/Controller layer with Spring-web, handles incoming REST requests to access game data from outside. 
+app.exception : Custom exceptions with Spring-web annotations that help with better HTTP error handling.
 
 
 # Credits
-Dion van Dam - Software Developing and documentation
+Dion van Dam (Finalist Intern) - Software Developing and documentation
 
-Martin van Amersfoorth - Project leading as product owner
+Martin van Amersfoorth (Joy of Coding, Finalist) - Project leading as product owner
 
-Martijn van der Maas - Tutoring and reviewing
+Martijn van der Maas (Finalist) - Tutoring and reviewing

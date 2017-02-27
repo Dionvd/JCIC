@@ -1,12 +1,14 @@
 package app.entity;
 
 /**
- * A move contains the data allowing for actions to be performed by a node. 
- * Players send a list of moves during each turn.
- * The node itself is not a sub object, only it's coordinates are sent.
+ * A move contains the data allowing for actions to be performed by a node.
+ * Players send a list of moves during each turn. The node itself is not a sub
+ * object, only it's coordinates are sent.
+ *
  * @author dion
  */
 public class Move {
+
     private int x;
     private int y;
     private Action action;
@@ -43,5 +45,5 @@ public class Move {
     public void setDirection(int direction) {
         this.direction = direction;
     }
-    
+
 }

@@ -6,5 +6,4 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface SettingsRepository extends CrudRepository<Settings, Long> {
 
-   
 }

@@ -1,6 +1,5 @@
 package app.entity;
 
-
 import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
@@ -11,18 +10,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- * Global Settings of all matches. 
- * Can be configured in the admin panel.
-
+ * Global Settings of all matches. Can be configured in the admin panel.
+ *
  * @author dion
  */
 @Entity
 public class Settings implements Serializable {
 
-    
-    
     static final boolean MOCKDATA = true;
-    
+
     static final int DEFAULT_COST_SPREAD = 10;
     static final int DEFAULT_COST_SPREADALL = 40;
     static final int DEFAULT_COST_SPREADLINE = 60;
@@ -34,32 +30,27 @@ public class Settings implements Serializable {
     static final int DEFAULT_COST_STORAGE = 20;
     static final int DEFAULT_COST_DRAIN = 5;
     static final int DEFAULT_COST_EXPLODE = 80;
-    
-    
+
     //Milliseconds per turn
     private int playSpeed = 300;
 
-    
     @ElementCollection
     private Map<Action, String> descriptions = new EnumMap<>(Action.class);
 
     @ElementCollection
     private Map<Action, Integer> defaultActionCosts = new EnumMap<>(Action.class);
-    
+
     private double gameRuleFluctuation = 0.2;
-  
-    
-    @Id 
+
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
-    
+
     /**
-     * Default constructor
-     * Initializes action costs and descriptions.
+     * Default constructor Initializes action costs and descriptions.
      */
     public Settings() {
-        
+
         descriptions.put(Action.SLEEP, "Do nothing. (default)");
         descriptions.put(Action.SPREAD, "Spreads to 1 adjacent node.");
         descriptions.put(Action.SPREADALL, "Spreads to all adjacent nodes.");
@@ -72,7 +63,7 @@ public class Settings implements Serializable {
         descriptions.put(Action.STORAGE, "Changes this node to a storage node (type=4). A storage node can store up to 300% energy.");
         descriptions.put(Action.DRAIN, "Consumes 5 power from an adjacent enemy node.");
         descriptions.put(Action.EXPLODE, "This node and all other nodes within two hexes are neutralized. (Including your own).");
-        
+
         defaultActionCosts.put(Action.SLEEP, 0);
         defaultActionCosts.put(Action.SPREAD, DEFAULT_COST_SPREAD);
         defaultActionCosts.put(Action.SPREADALL, DEFAULT_COST_SPREADALL);
@@ -87,7 +78,6 @@ public class Settings implements Serializable {
         defaultActionCosts.put(Action.EXPLODE, DEFAULT_COST_EXPLODE);
     }
 
-
     public int getPlaySpeed() {
         return playSpeed;
     }
@@ -95,7 +85,6 @@ public class Settings implements Serializable {
     public void setPlaySpeed(int playSpeed) {
         this.playSpeed = playSpeed;
     }
-
 
     public Map<Action, String> getDescriptions() {
         return descriptions;
@@ -124,6 +113,5 @@ public class Settings implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
-    
 
 }

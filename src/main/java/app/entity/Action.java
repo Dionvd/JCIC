@@ -2,8 +2,9 @@
 package app.entity;
 
 /**
- * The action that one of your nodes could take.
- * A node can perform an action by sending the service your list of moves. 
+ * The action that one of your nodes could take. A node can perform an action by
+ * sending the service your list of moves.
+ *
  * @author dion
  */
 public enum Action {
@@ -11,61 +12,51 @@ public enum Action {
     /**
      * Do nothing.
      */
-    SLEEP,      
-
+    SLEEP,
     /**
      * Spreads to 1 adjacent node.
      */
-    SPREAD,     
-
+    SPREAD,
     /**
      * Spreads to all adjacent nodes.
      */
-    SPREADALL,  
-
+    SPREADALL,
     /**
      * Spreads to 5 nodes in a straight line from this node.
      */
-    SPREADLINE, 
-
+    SPREADLINE,
     /**
      * Gives 5% power to adjacent node with lowest power.
      */
-    EMPOWER,    
-
+    EMPOWER,
     /**
      * Splits remaining power with adjacent node and sells special type.
      */
-    DISCHARGE,  
-
+    DISCHARGE,
     /**
-     * Nodes can consume the power from adjacent or connected powerline nodes. 
+     * Nodes can consume the power from adjacent or connected powerline nodes.
      */
-    POWERLINE,  
-
+    POWERLINE,
     /**
-     * This node becomes overclocked, an overclocked node generates power 3x as fast.
+     * This node becomes overclocked, an overclocked node generates power 3x as
+     * fast.
      */
-    OVERCLOCK,  
-
+    OVERCLOCK,
     /**
-     * A guarded node is protected against 1 takeover and blocks line spreads. 
+     * A guarded node is protected against 1 takeover and blocks line spreads.
      */
-    GUARD,        
-
+    GUARD,
     /**
      * This node can store 3x as much energy.
      */
-    STORAGE,    
-
+    STORAGE,
     /**
      * Consumes 5 power from an adjacent enemy node.
      */
-    DRAIN,      
-
+    DRAIN,
     /**
-     * Neutralizes all nodes within two tiles of this node, including your own. 
+     * Neutralizes all nodes within two tiles of this node, including your own.
      */
-    EXPLODE;    
+    EXPLODE;
 
 }

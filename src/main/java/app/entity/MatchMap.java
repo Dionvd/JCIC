@@ -1,11 +1,10 @@
 package app.entity;
 
-import app.exceptions.NotFoundOutOfBoundsException;
+import app.exception.NotFoundOutOfBoundsException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,13 +23,17 @@ import javax.persistence.OneToMany;
 @Entity
 public class MatchMap implements Serializable {
 
-    @Id 
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @OneToMany(targetEntity=MatchRow.class, cascade = CascadeType.ALL)
-    private List<MatchRow> nodes;
-               
+    //Y = index/width. X= index%width;
+    @OneToMany(targetEntity = Node.class, cascade = CascadeType.ALL)
+    private List<Node> nodes; 
+    
+    private int width;
+    private int height;
+    
     
     /**
      * default constructor.
@@ -40,54 +43,25 @@ public class MatchMap implements Serializable {
     }
 
     /**
-     * recommended constructor. 
-     * generates nodes based on the given width and height.
+     * recommended constructor. generates nodes based on the given width and
+     * height.
      *
      * @param width
      * @param height
      */
-    public MatchMap(int width, int height) {
+    public MatchMap(int width, int height, long mapId) {
 
+        this.width = width;
+        this.height = height;
         nodes = new ArrayList<>();
 
-        for (int i = 0; i < height; i++) {
-            nodes.add(new MatchRow());
+        for (int y = 0; y < height; y++) {
 
-            for (int j = 0; j < width; j++) {
-                nodes.get(i).nodes.add(new Node());
+            for (int x = 0; x < width; x++) {
+                nodes.add(new Node(x,y,mapId));
             }
         }
 
-    }
-
-    /**
-     *
-     * @return
-     */
-    public int getWidth() {
-        return nodes.size();
-    }
-
-    /**
-     *
-     * @return
-     */
-    public int getHeight() {
-        return nodes.get(0).nodes.size();
-    }
-
-    /**
-     * Gets an entire row of nodes from the map.
-     * @param rowIndex
-     * @return List of nodes.
-     * @throws NotFoundOutOfBoundsException when index are out of bounds.
-     */
-    public MatchRow getNodesRow(int rowIndex) {
-        try {
-            return nodes.get(rowIndex);
-        } catch (IndexOutOfBoundsException e) {
-            throw new NotFoundOutOfBoundsException(e);
-        }
     }
 
     /**
@@ -99,18 +73,18 @@ public class MatchMap implements Serializable {
     public Node getNode(int x, int y) {
 
         try {
-            return nodes.get(y).nodes.get(x);
+            return nodes.get(x + y*width);
         } catch (IndexOutOfBoundsException e) {
             throw new NotFoundOutOfBoundsException(e);
         }
 
     }
 
-    public List<MatchRow> getNodes() {
+    public List<Node> getNodes() {
         return nodes;
     }
 
-    public void setNodes(List<MatchRow> nodes) {
+    public void setNodes(List<Node> nodes) {
         this.nodes = nodes;
     }
 
@@ -122,6 +96,22 @@ public class MatchMap implements Serializable {
         this.id = id;
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
     
     
+
 }

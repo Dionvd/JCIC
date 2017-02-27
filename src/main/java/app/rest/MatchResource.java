@@ -1,14 +1,13 @@
 package app.rest;
 
-import app.dao.MatchRepository;
-import app.entity.Player;
 import app.entity.Match;
 import app.entity.MatchRules;
 import app.entity.Node;
 import app.entity.MatchMap;
 import app.entity.JsonWrapper;
-import app.exceptions.NotFoundException;
-import java.util.Collection;
+import app.exception.NotFoundException;
+import app.service.MatchService;
+import app.service.NodeService;
 import javax.inject.Inject;
 
 import org.springframework.http.MediaType;
@@ -28,9 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class MatchResource {
 
     @Inject
-    MatchRepository mRep;
+    private MatchService matchService;
     
-    
+    @Inject
+    private NodeService nodeService;
+
     /**
      * Get a list of all matches.
      *
@@ -39,7 +40,7 @@ public class MatchResource {
      */
     @RequestMapping(value = "")
     public Iterable<Match> getMatches() {
-        return mRep.findAll();
+        return matchService.findAll();
     }
 
     /**
@@ -54,7 +55,7 @@ public class MatchResource {
     public Match getMatch(@PathVariable(value = "matchId") String matchId) {
 
         long i = ResourceMethods.parseInt(matchId);
-        return mRep.findOne(i);
+        return matchService.findOne(i);
     }
 
     /**
@@ -67,39 +68,36 @@ public class MatchResource {
     public MatchMap getMatchMap(@PathVariable(value = "v") String matchId) {
 
         long i = ResourceMethods.parseInt(matchId);
-        Match m = mRep.findOne(i);
+        Match m = matchService.findOne(i);
         return m.getMap();
     }
 
+    
     /**
-     * Gets a row of nodes.
+     * Get a single node.
      *
-     * @param matchId
-     * @param row of map
-     * @return row of nodes at coordinate y of game matching matchId.
+     * @param nodeId
+     * @return node with matching nodeId.
      */
-    @RequestMapping(value = "/{matchId}/map/{row}")
-    public Collection<Node> getMatchMapRow(
-            @PathVariable(value = "matchId") String matchId,
-            @PathVariable(value = "row") String row) {
+    @RequestMapping(value = "/nodes/{nodeId}")
+    public Node getNode(
+            @PathVariable(value = "nodeId") String nodeId) {
 
-        long i = ResourceMethods.parseInt(matchId);
-        int iy = ResourceMethods.parseInt(row);
+        long i = ResourceMethods.parseInt(nodeId);
 
-        Match m = mRep.findOne(i);
-        //return m.getMap().getNodesRow(iy);
-        return null;
+        return nodeService.getNode(i);
     }
-
+    
+    
+    
     /**
-     * Get a single node of the game map.
+     * Get a single node of a game map.
      *
      * @param matchId
-     * @param x coordinate of map
-     * @param y coordinate of map
-     * @return node with matching coordinates of game matching matchId. Y must be
-     * given first, because Y represents the row number, while X represents
-     * column.
+     * @param x coordinate of map (left to right)
+     * @param y coordinate of map (up to down)
+     * @return node with matching coordinates of game matching matchId.
+     * 
      */
     @RequestMapping(value = "/{matchId}/map/{x}/{y}")
     public Node getMatchMapNode(
@@ -110,9 +108,8 @@ public class MatchResource {
         long i = ResourceMethods.parseInt(matchId);
         int ix = ResourceMethods.parseInt(x);
         int iy = ResourceMethods.parseInt(y);
-
-        Match m = mRep.findOne(i);
-        return m.getMap().getNode(ix, iy);
+        
+        return nodeService.getNode(ix, iy, i);
     }
 
     /**
@@ -122,10 +119,10 @@ public class MatchResource {
      * @return players that play in game with matchId.
      */
     @RequestMapping(value = "/{matchId}/players")
-    public Collection<Long> getMatchPlayers(@PathVariable(value = "matchId") String matchId) {
+    public Iterable<Long> getMatchPlayers(@PathVariable(value = "matchId") String matchId) {
 
         long i = ResourceMethods.parseLong(matchId);
-        Match m = mRep.findOne(i);
+        Match m = matchService.findOne(i);
         return m.getPlayerIds();
     }
 
@@ -134,24 +131,22 @@ public class MatchResource {
      *
      * @param matchId
      * @param playerId
-     * @return player with matching playerId if player is inside game with matchId.
+     * @return player with matching playerId if player is inside game with
+     * matchId.
      */
     @RequestMapping(value = "/{matchId}/players/{playerId}")
     public JsonWrapper getMatchPlayer(@PathVariable(value = "matchId") String matchId, @PathVariable(value = "playerId") String playerId) {
 
         long mID = ResourceMethods.parseLong(matchId);
-        Match m = mRep.findOne(mID);
+        Match m = matchService.findOne(mID);
         long pID = ResourceMethods.parseLong(playerId);
 
         if (m.getPlayerIds().contains(pID)) {
             return new JsonWrapper(pID);
         }
-        
+
         throw new NotFoundException();
     }
-    
-    
-    
 
     /**
      * Get the game turn count.
@@ -163,7 +158,7 @@ public class MatchResource {
     public JsonWrapper getMatchTurn(@PathVariable(value = "matchId") String matchId) {
 
         long i = ResourceMethods.parseLong(matchId);
-        Match m = mRep.findOne(i);
+        Match m = matchService.findOne(i);
         return new JsonWrapper(m.getTurn());
     }
 
@@ -177,7 +172,7 @@ public class MatchResource {
     public MatchRules getMatchRules(@PathVariable(value = "matchId") String matchId) {
 
         long i = ResourceMethods.parseInt(matchId);
-        Match m = mRep.findOne(i);
+        Match m = matchService.findOne(i);
         return m.getMatchRules();
     }
 }

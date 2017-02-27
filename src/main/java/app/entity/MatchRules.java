@@ -2,7 +2,6 @@
 package app.entity;
 
 import java.io.Serializable;
-import java.util.EnumMap;
 import java.util.Map;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,29 +9,30 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- * MatchRules contains the selected rules of a single match. 
- * MatchRules is a sub object of Match.
- * Not to be confused with the Settings class, which contains global settings and rules.
- * Many game rules are derived from the Settings class.
+ * MatchRules contains the selected rules of a single match. MatchRules is a sub
+ * object of Match. Not to be confused with the Settings class, which contains
+ * global settings and rules. Many game rules are derived from the Settings
+ * class.
+ *
  * @author dion
  */
-
 @Entity
 public class MatchRules implements Serializable {
 
-    @Id 
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    
+
     static final int MAX_POWER = 100;
-    
+
     //private Map<Action, Integer> actionCosts = new EnumMap<>(Action.class);
+    
+    
     private double fluctuation;
-    
-    public MatchRules()
-    {
+
+    public MatchRules() {
     }
-    
+
     public MatchRules(Settings settings) {
 
         this.fluctuation = settings.getMatchRuleFluctuation();
@@ -73,11 +73,9 @@ public class MatchRules implements Serializable {
     public long getId() {
         return id;
     }
-    
+
     public void setId(long id) {
         this.id = id;
     }
-
-    
 
 }

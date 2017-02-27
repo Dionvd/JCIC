@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package app.entity;
 
 import java.io.Serializable;
@@ -18,22 +13,23 @@ import javax.persistence.Id;
 @Entity
 public class Starterpack implements Serializable {
 
-    @Id 
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
+
     private String name;
-    
+    private String language;
+
     private String link;
 
     public Starterpack() {
     }
 
-    public Starterpack(String name, String link) {
+    public Starterpack(String name, String language, String link) {
         this.name = name;
+        this.language = language;
         this.link = link;
     }
-    
 
     public Long getId() {
         return id;
@@ -51,6 +47,14 @@ public class Starterpack implements Serializable {
         this.name = name;
     }
 
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
     public String getLink() {
         return link;
     }
@@ -58,7 +62,5 @@ public class Starterpack implements Serializable {
     public void setLink(String link) {
         this.link = link;
     }
-    
-    
-    
+
 }

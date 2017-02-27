@@ -1,8 +1,6 @@
 //http://stackoverflow.com/questions/14824491/can-i-communicate-between-java-and-c-sharp-using-just-sockets
-
 package app;
 
-import app.dao.MatchRepository;
 import app.entity.MatchMap;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,26 +9,23 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.net.SocketException;
-import javax.inject.Inject;
 import org.json.JSONObject;
 
 /**
  * Hosts a socket server for sending information about the game to Unity3D.
+ *
  * @author dion
  */
 public class SocketToUnity {
-    
+
     private static final int HOST_PORT = 5242;
-    
+
     private static ServerSocket serverSocket;
     private static Socket socket;
     private static OutputStream os;
-    
-    
-    
-    public static void run()
-    {
-        
+
+    public static void run() {
+
         try {
             System.out.println("Starting socket server...");
 
@@ -39,14 +34,12 @@ public class SocketToUnity {
 
             System.out.println("Client connected...");
 
-            
-            new Thread() { 
+            new Thread() {
                 @Override
                 public void run() {
-                    
+
                     sendStart();
-                    while(true)
-                    {
+                    while (true) {
                         try {
                             sendUpdate();
                             sleep(300);
@@ -55,68 +48,60 @@ public class SocketToUnity {
                         }
                     }
                 }
-            
+
             }.start();
 
         } catch (IOException ex) {
             System.out.println("Failed to start socket!");
             Logger.getLogger(SocketToUnity.class.getName()).log(Level.SEVERE, null, ex);
-            
+
         }
 
     }
-    
-    
-    public static void sendStart()
-    {
+
+    public static void sendStart() {
         //TODO 
         //SEND PLAYER INFO && STUFF
     }
-    
-    
-    public static void sendUpdate()
-    {
+
+    public static void sendUpdate() {
         //SEND MAP
-        
+
         try {
-            
+
             os = socket.getOutputStream();
-            
+
             // prepare sending
             JSONObject json = new JSONObject(getMap());
-            
+
             String toSend = json.toString();
             byte[] toSendBytes = toSend.getBytes();
             int toSendLen = toSendBytes.length;
             byte[] toSendLenBytes = new byte[4];
-            toSendLenBytes[0] = (byte)(toSendLen & 0xff);
-            toSendLenBytes[1] = (byte)((toSendLen >> 8) & 0xff);
-            toSendLenBytes[2] = (byte)((toSendLen >> 16) & 0xff);
-            toSendLenBytes[3] = (byte)((toSendLen >> 24) & 0xff);
-            
-            
+            toSendLenBytes[0] = (byte) (toSendLen & 0xff);
+            toSendLenBytes[1] = (byte) ((toSendLen >> 8) & 0xff);
+            toSendLenBytes[2] = (byte) ((toSendLen >> 16) & 0xff);
+            toSendLenBytes[3] = (byte) ((toSendLen >> 24) & 0xff);
+
             //send to client
             System.out.println("Sending to Unity : " + toSend);
             os.write(toSendLenBytes);
             os.write(toSendBytes);
-            
-            
+
         } catch (SocketException ex) {
 
             //UNITY3D CLOSED WHILE RUNNING
             Logger.getLogger(SocketToUnity.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("Connection with Unity broke! Restarting socket!");
             restartSocket();
-            
+
         } catch (IOException ex) {
             Logger.getLogger(SocketToUnity.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-            
+
     }
-    
-    public static void restartSocket()
-    {
+
+    public static void restartSocket() {
         try {
             os.close();
             socket.close();
@@ -126,9 +111,8 @@ public class SocketToUnity {
             Logger.getLogger(SocketToUnity.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public static MatchMap getMap()
-    {
+
+    public static MatchMap getMap() {
         return null;
         //TODO
     }

@@ -6,32 +6,28 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * Application class
- * This class contains setting notations for Spring.
- * Can be run to boot up Spring.
+ * Application class This class contains setting notations for Spring. Can be
+ * run to boot up Spring.
+ *
  * @author dion
  */
-
 @SpringBootApplication
-//@ComponentScan(basePackages = {"rest", "dao"})
 @EnableSwagger2
 public class Application {
 
     /**
      * Boots up Spring, Hosts the Game and Sends info to the visuals.
+     *
      * @param args
      */
     public static void main(String[] args) {
-      
+
         SpringApplication.run(Application.class, args);
-         
+
         SocketToUnity.run();
 
         HostGame.run();
 
     }
-    
-    
-    
-    
+
 }

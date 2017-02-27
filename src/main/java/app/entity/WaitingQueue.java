@@ -1,13 +1,15 @@
 package app.entity;
 
-import app.exceptions.NotFoundException;
+import app.exception.NotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Waiting Queue class is responsible for keeping track of bots currently waiting to playing a game.
- * When a game is created, it takes players from the waiting queue to decide which players are put together in a match.
- * It does not store player information, it only references them by playerIds.
+ * The Waiting Queue class is responsible for keeping track of bots currently
+ * waiting to playing a game. When a game is created, it takes players from the
+ * waiting queue to decide which players are put together in a match. It does
+ * not store player information, it only references them by playerIds.
+ *
  * @author dion
  */
 public class WaitingQueue {
@@ -16,13 +18,12 @@ public class WaitingQueue {
     private List<Long> playerIds;
 
     /**
-     *  Default constructor.
+     * Default constructor.
      */
     public WaitingQueue() {
         playerIds = new ArrayList<>();
     }
 
-   
     public int getMaxCount() {
         return maxCount;
     }
@@ -32,7 +33,8 @@ public class WaitingQueue {
     }
 
     public List<Long> getPlayerIds() {
-        return playerIds;
+        final List<Long> pids = new ArrayList<>(playerIds);
+        return pids;
     }
 
     public void setPlayerIds(List<Long> playerIds) {
@@ -40,7 +42,8 @@ public class WaitingQueue {
     }
 
     /**
-     * Gets and returns the position (index+1) of playerId in the waiting queue. 
+     * Gets and returns the position (index+1) of playerId in the waiting queue.
+     *
      * @param playerId
      * @return position in the waiting queue
      * @throws NotFoundException when playerId cannot be found in the queue.
@@ -52,11 +55,13 @@ public class WaitingQueue {
         if (i == -1) {
             throw new NotFoundException();
         }
-        return i+1;
+        return i + 1;
     }
 
     /**
-     * Used during game creation, Removes the first waiting player from the queue.
+     * Used during game creation, Removes the first waiting player from the
+     * queue.
+     *
      * @return playerId that was removed from the list
      */
     public long getAndRemoveFirst() {

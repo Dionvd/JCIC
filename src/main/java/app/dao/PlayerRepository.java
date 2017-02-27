@@ -7,5 +7,8 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface PlayerRepository extends CrudRepository<Player, Long> {
 
-    List<Player> findByUsername(String username);
+    public List<Player> findByName(String name);
+
+    public List<Player> findByEmail(String email);
+
 }
