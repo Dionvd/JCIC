@@ -15,29 +15,33 @@ import java.util.Map;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
- * The RestErrorController automatically transforms any spring error pages that
- * could appear in to the form of JSON data.
+ * Automatically transforms any spring error pages that could appear in to the
+ * form of JSON data.
  *
  * @author dion
  */
 @ApiIgnore
 @RestController
 @RequestMapping("/error")
-public class RestErrorController implements ErrorController {
+public class ErrorResource implements ErrorController {
 
     private final ErrorAttributes errorAttributes;
 
     /**
+     * This constructor is automatically used when an error controller is
+     * needed.
      *
-     * @param errorAttributes
+     * @param errorAttributes (@autowired)
      */
     @Autowired
-    public RestErrorController(ErrorAttributes errorAttributes) {
+    public ErrorResource(ErrorAttributes errorAttributes) {
         Assert.notNull(errorAttributes, "ErrorAttributes must not be null");
         this.errorAttributes = errorAttributes;
     }
 
     /**
+     * Returns the default error path despite this controller working on all
+     * paths.
      *
      * @return
      */
@@ -63,16 +67,30 @@ public class RestErrorController implements ErrorController {
         return body;
     }
 
+    /**
+     * Gets the error attributes of the request.
+     * 
+     * @param aRequest
+     * @param includeStackTrace
+     * @return
+     */
+    private Map<String, Object> getErrorAttributes(HttpServletRequest aRequest, boolean includeStackTrace) {
+        RequestAttributes requestAttributes = new ServletRequestAttributes(aRequest);
+        return errorAttributes.getErrorAttributes(requestAttributes, includeStackTrace);
+    }
+    
+    
+    /**
+     * Checks if the request wishes stack trace to be on.
+     *
+     * @param request
+     * @return boolean
+     */
     private boolean getTraceParameter(HttpServletRequest request) {
         String parameter = request.getParameter("trace");
         if (parameter == null) {
             return false;
         }
         return !"false".equals(parameter.toLowerCase());
-    }
-
-    private Map<String, Object> getErrorAttributes(HttpServletRequest aRequest, boolean includeStackTrace) {
-        RequestAttributes requestAttributes = new ServletRequestAttributes(aRequest);
-        return errorAttributes.getErrorAttributes(requestAttributes, includeStackTrace);
     }
 }

@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
- * Simple RESTful web service resource for redirections. There's also something
- * else, but just ignore that.
+ * Simple RESTful web service resource for redirections. 
  *
  * @author dion
  */
@@ -32,7 +31,7 @@ public class Redirect {
      * Just ignore this part.
      *
      * @return String maybe, okay, probably not.
-     * @throws ImATeapotException
+     * @throws ImATeapotException, always does.
      */
     @RequestMapping(value = "/teapot/brewcoffee", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public String brewcoffee() throws ImATeapotException {

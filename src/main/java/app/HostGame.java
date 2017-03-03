@@ -21,7 +21,7 @@ public class HostGame {
         while (true) {
             try {
                 System.out.println("Game is running...");
-                sleep(300);
+                sleep(10000);
 
             } catch (InterruptedException ex) {
                 Logger.getLogger(HostGame.class.getName()).log(Level.SEVERE, null, ex);

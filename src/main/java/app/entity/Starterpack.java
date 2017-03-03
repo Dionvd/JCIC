@@ -7,7 +7,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- *
+ * Contains the data required to find a starterpack on the internet.
+ * Starterpacks are projects that can be downloaded and used by a player to 
+ * avoid having to write their own JSON interpreter and HTTP request sender.
  * @author dion
  */
 @Entity
@@ -18,13 +20,24 @@ public class Starterpack implements Serializable {
     private Long id;
 
     private String name;
+    
     private String language;
 
     private String link;
 
+    /**
+     * Entity constructor. Do not use.
+     */
+    @Deprecated
     public Starterpack() {
     }
 
+    /**
+     * Default constructor.
+     * @param name
+     * @param language
+     * @param link
+     */
     public Starterpack(String name, String language, String link) {
         this.name = name;
         this.language = language;

@@ -1,6 +1,5 @@
 package app.entity;
 
-import app.service.NodeService;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -16,10 +15,9 @@ import javax.persistence.Id;
 @Entity
 public class Node implements Serializable {
 
-    
     @Id
     private long id; //MAPIDXXYY
-    
+
     private int power = 0;
     private long ownerId = 0;
 
@@ -27,31 +25,54 @@ public class Node implements Serializable {
     private int type = 0;
 
     /**
-     *  default constructor
+     * Entity constructor. Do not use.
      */
+    @Deprecated
     public Node() {
+    }
+
+    /**
+     * Default Constructor. Automatically sets id.
+     *
+     * @param matchId
+     * @param x
+     * @param y
+     */
+    public Node(int x, int y, long matchId) {
+        this.id = Node.calcKey(matchId, x, y);
+    }
+
+    /**
+     * Calculates the node key by combining the mapId, x coordinate
+     * and y coordinate.
+     * @param matchId
+     * @param x
+     * @param y
+     * @return id
+     */
+    public static Long calcKey(Long matchId, int x, int y)
+    {
+        return matchId * 10000 + x*100+y;
     }
     
     /**
-     * Constructor that automatically sets id based on mapId, x and y coordinate.
-     * @param x
-     * @param y
-     * @param mapId
+     * Reads the X coordinate from the id.
+     * @return X coordinate
      */
-    public Node(int x, int y, long matchId)
-    {
-        this.id = NodeService.calcNodeKey(x, y, matchId);
+    public int getX() {
+        return (int) ((id % 10000) / 100);
     }
 
     
-    public int getX() {
-        return (int)((id%10000) / 100);
-    }
     
+    /**
+     * Reads the Y coordinate from the id.
+     * @return Y coordinate
+     */
     public int getY() {
-        return (int)(id%100);
+        return (int) (id % 100);
     }
-   
+
     public int getPower() {
         return power;
     }
@@ -59,11 +80,11 @@ public class Node implements Serializable {
     public void setPower(int power) {
         this.power = power;
     }
-   
+
     public long getOwnerId() {
         return ownerId;
     }
-  
+
     public void setOwnerId(long ownerId) {
         this.ownerId = ownerId;
     }
@@ -84,4 +105,5 @@ public class Node implements Serializable {
         this.id = id;
     }
 
+    
 }

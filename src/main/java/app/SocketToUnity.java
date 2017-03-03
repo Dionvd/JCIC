@@ -68,7 +68,6 @@ public class SocketToUnity {
         //SEND MAP
 
         try {
-
             os = socket.getOutputStream();
 
             // prepare sending

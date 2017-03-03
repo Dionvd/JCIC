@@ -1,4 +1,4 @@
-package app.entity;
+package app.object;
 
 /**
  * The JsonWrapper class is very simple class to store a variable for the
@@ -13,11 +13,11 @@ public class JsonWrapper {
     private Object value;
 
     /**
-     *
-     * @param obj
+     * Default constructor.
+     * @param object to be wrapped
      */
-    public JsonWrapper(Object obj) {
-        value = obj;
+    public JsonWrapper(Object object) {
+        value = object;
     }
 
     /**

@@ -1,9 +1,9 @@
-package app.entity;
+package app.object;
 
 /**
- * LoginCredentials contains the data required to register an account. Handles
+ * LoginCredentials contains the data required to login an account. Handles
  * sensitive information. It is used in post requests from the client, but it
- * should never be sent to the client.
+ * should never be returned to the client.
  *
  * @author dion
  */
@@ -12,10 +12,20 @@ public class LoginCredentials {
     private String email;
     private String password;
 
-    public LoginCredentials() {
+    /**
+     * Empty constructor. Do not use.
+     */
+    @Deprecated
+    public LoginCredentials()
+    {
     }
-
-    public LoginCredentials(String email, String name, String password) {
+    
+    /**
+     * Default constructor.
+     * @param email
+     * @param password
+     */
+    public LoginCredentials(String email, String password) {
         this.email = email;
         this.password = password;
     }

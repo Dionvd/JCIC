@@ -1,5 +1,6 @@
 //http://javarevisited.blogspot.nl/2011/08/enum-in-java-example-tutorial.html
-package app.entity;
+//http://stackoverflow.com/questions/5878952/cast-int-to-enum-in-java
+package app.object;
 
 /**
  * The action that one of your nodes could take. A node can perform an action by

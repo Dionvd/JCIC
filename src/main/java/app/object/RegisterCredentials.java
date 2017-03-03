@@ -1,4 +1,4 @@
-package app.entity;
+package app.object;
 
 /**
  * RegisterCredentials contain the data required to register an account. Handles
@@ -13,9 +13,20 @@ public class RegisterCredentials {
     private String name;
     private String password;
 
-    public RegisterCredentials() {
+    /**
+     * Empty constructor. Do not use.
+     */
+    @Deprecated
+    public RegisterCredentials()
+    {
     }
-
+    
+    /**
+     * Default constructor.
+     * @param email
+     * @param name
+     * @param password
+     */
     public RegisterCredentials(String email, String name, String password) {
         this.email = email;
         this.name = name;

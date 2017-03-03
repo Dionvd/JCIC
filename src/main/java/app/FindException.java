@@ -1,6 +1,8 @@
-package app.rest;
+package app;
 
 import app.exception.NotANumberException;
+import app.exception.NotFoundException;
+import com.google.common.collect.Iterables;
 
 /**
  * Utility class that wraps common methods for the purpose of avoiding
@@ -9,12 +11,14 @@ import app.exception.NotANumberException;
  *
  * @author dion
  */
-public final class ResourceMethods {
+public final class FindException {
 
+   
     /**
-     * Default private constructor of utility class.
+     * Private constructor of utility class. 
+     * This makes it impossible to instantiate this class.
      */
-    private ResourceMethods() {
+    private FindException() {
     }
 
     /**
@@ -26,7 +30,7 @@ public final class ResourceMethods {
      * @throws NotANumberException when s contains characters that cannot be
      * converted.
      */
-    public static int parseInt(String s) {
+    public static int parseInt(String s) throws NotANumberException {
         int i;
         try {
             i = Integer.parseInt(s);
@@ -45,7 +49,7 @@ public final class ResourceMethods {
      * @throws NotANumberException when s contains characters that cannot be
      * converted.
      */
-    public static long parseLong(String s) {
+    public static long parseLong(String s) throws NotANumberException {
         long i;
         try {
             i = Long.parseLong(s);
@@ -54,4 +58,32 @@ public final class ResourceMethods {
         }
         return i;
     }
+    
+    /**
+     * Wrapper method that throws correct HTTP exception when a repo couldn't 
+     * find a stored value. (HTTP 404:Not Found)
+     * @param <T>
+     * @param object
+     * @return
+     * @throws NotFoundException
+     */
+    public static <T extends Object> T notFoundOnNull(T object) throws NotFoundException
+    {
+        if (object == null) throw new NotFoundException();
+        return object;
+    }
+    
+    /**
+     * Wrapper method that throws correct HTTP exception when a repo returns
+     * an empty list. (HTTP 404:Not Found)
+     * @param objects
+     * @return
+     * @throws NotFoundException
+     */
+    public static Iterable notFoundOnEmpty(Iterable objects) throws NotFoundException {
+        if (Iterables.size(objects) == 0)
+            throw new NotFoundException();
+        return objects;
+    }
+
 }

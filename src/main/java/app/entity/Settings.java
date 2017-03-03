@@ -1,5 +1,6 @@
 package app.entity;
 
+import app.object.Action;
 import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;
@@ -10,14 +11,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- * Global Settings of all matches. Can be configured in the admin panel.
+ * Global Settings for all matches. Can be configured with the admin panel.
+ * panel.
  *
  * @author dion
  */
 @Entity
 public class Settings implements Serializable {
 
-    static final boolean MOCKDATA = true;
+    public static final boolean MOCKDATA = true;
 
     static final int DEFAULT_COST_SPREAD = 10;
     static final int DEFAULT_COST_SPREADALL = 40;
@@ -31,6 +33,12 @@ public class Settings implements Serializable {
     static final int DEFAULT_COST_DRAIN = 5;
     static final int DEFAULT_COST_EXPLODE = 80;
 
+    public static final int MAX_MATCH_PLAYER_SIZE = 4;
+    public static final int MAX_MATCHES = 5;
+    public static final int DEFAULT_MAP_WIDTH = 10;  
+    public static final int DEFAULT_MAP_HEIGHT = 10;
+
+    
     //Milliseconds per turn
     private int playSpeed = 300;
 

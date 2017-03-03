@@ -6,13 +6,16 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * ImATeapotException will be thrown when you ask a teapot to brew you some
- * coffee. That's not what teapots are for!
+ * coffee. That's obviously not what teapots are for!
  *
  * @author dion
  */
-@ResponseStatus(value = HttpStatus.I_AM_A_TEAPOT, reason = "I am a teapot, mate, I do not brew coffee.")
+@ResponseStatus(value = HttpStatus.I_AM_A_TEAPOT, reason = "I am a teapot. Teapots cannot brew coffee.")
 public class ImATeapotException extends Exception {
 
+    /**
+     *  Empty constructor.
+     */
     public ImATeapotException() {
     }
 

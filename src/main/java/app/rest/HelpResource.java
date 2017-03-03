@@ -1,6 +1,7 @@
 package app.rest;
 
 import app.entity.Starterpack;
+import app.exception.NotFoundException;
 import javax.inject.Inject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,37 +11,38 @@ import app.service.HelpService;
 import org.springframework.web.bind.annotation.PathVariable;
 
 /**
- * RESTful web service resource for getting the global settings. Settings are
- * not to be confused with MatchRules. MatchRules differ with each round of a
- * game whereas Settings remain the same. That said, MatchRules might be
- * partially derived from the Settings.
+ * RESTful web service resource for getting help. Responsible for offering
+ * external reference documents.
  *
  * @author dion
  */
 @RestController
+@RequestMapping(value = "/help", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 public class HelpResource {
 
     @Inject
     private HelpService helpService;
 
     /**
-     * Gets the current settings, as chosen by the admin panel.
+     * Get all Starterpacks.
      *
-     * @return settings
+     * @return all Starterpacks
      */
-    @RequestMapping(value = "/starterpacks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/starterpacks")
     public Iterable<Starterpack> starterpacks() {
-        return helpService.findAll();
+        return helpService.getAllStarterpacks();
     }
 
     /**
-     * Gets the current settings, as chosen by the admin panel.
+     * Get Starterpack with matching Language.
      *
-     * @return settings
+     * @param language
+     * @return Starterpack with matching language.
+     * @throws NotFoundException 
      */
-    @RequestMapping(value = "/starterpacks/{language}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Starterpack getStarterpackOfLanguage(@PathVariable(value = "language") String language) {
-        return helpService.findByLanguage(language);
+    @RequestMapping(value = "/starterpacks/{language}")
+    public Starterpack getStarterpackByLanguage(@PathVariable(value = "language") String language) throws NotFoundException {
+        return helpService.getStarterpackByLanguage(language);
     }
 
 }

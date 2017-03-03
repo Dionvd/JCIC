@@ -5,7 +5,7 @@
 
     <groupId>org.springframework.boot</groupId>
     <artifactId>jcic-service</artifactId>
-    <version>0.2</version>
+    <version>0.21</version>
 
     <name>JCIC</name>
     <description>JCIC spring boot app</description>

@@ -12,11 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 /**
- * MatchMap represents the current board of a round of the game, which is an
- * ArrayList of ArrayLists of nodes. The first index represents y while the
- * second index represents x. This way, when converted to JSON, the JSON is
- * constructed as a collection of rows of nodes. MatchMap is a sub object of
- * Match.
+ * MatchMap represents the current board of a single round of the game.  
+ * This class contains each individual node on the map, stored as one big list.
  *
  * @author dion
  */
@@ -36,20 +33,22 @@ public class MatchMap implements Serializable {
     
     
     /**
-     * default constructor.
+     * Entity constructor. Do not use.
      */
+    @Deprecated
     public MatchMap() {
         nodes = new ArrayList<>();
     }
 
     /**
-     * recommended constructor. generates nodes based on the given width and
-     * height.
+     * Default constructor. generates nodes based on the given width and
+     * height of the map.
      *
-     * @param width
-     * @param height
+     * @param width of the map in nodes
+     * @param height of the map in nodes
+     * @param matchId of the match that this map is part of.
      */
-    public MatchMap(int width, int height, long mapId) {
+    public MatchMap(int width, int height, long matchId) {
 
         this.width = width;
         this.height = height;
@@ -58,10 +57,9 @@ public class MatchMap implements Serializable {
         for (int y = 0; y < height; y++) {
 
             for (int x = 0; x < width; x++) {
-                nodes.add(new Node(x,y,mapId));
+                nodes.add(new Node(x,y,matchId));
             }
         }
-
     }
 
     /**
@@ -70,7 +68,7 @@ public class MatchMap implements Serializable {
      * @return Node located at coordinates x and y.
      * @throws NotFoundOutOfBoundsException when index are out of bounds.
      */
-    public Node getNode(int x, int y) {
+    public Node getNode(int x, int y) throws NotFoundOutOfBoundsException {
 
         try {
             return nodes.get(x + y*width);

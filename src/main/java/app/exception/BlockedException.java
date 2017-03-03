@@ -5,16 +5,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * Exception class that throws HTTP error 401 during a web service.
+ * Exception class that throws HTTP error 401 when a user is temporarily 
+ * blocked because of too many failed verification requests.
  *
  * @author dion
  */
-@ResponseStatus(value = HttpStatus.UNAUTHORIZED, reason = "You are temporarily blocked because of too many (failed) requests. Come back in 5 minutes.")
-public class BlockedException extends ArrayIndexOutOfBoundsException {
+@ResponseStatus(value = HttpStatus.UNAUTHORIZED, reason = "You are temporarily blocked because of too many (failed) verification requests. Come back in 5 minutes.")
+public class BlockedException extends Exception {
 
+    /**
+     * Empty constructor.
+     */
     public BlockedException() {
     }
 
+    /**
+     * Information passing constructor. When possible use this constructor.
+     * @param e
+     */
     public BlockedException(Exception e) {
         super(e.getMessage());
     }

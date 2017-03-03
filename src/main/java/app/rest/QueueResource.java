@@ -1,9 +1,13 @@
 package app.rest;
 
-import app.service.PlayerService;
-import app.entity.JsonWrapper;
-import app.entity.WaitingQueue;
+import app.FindException;
 import app.exception.FailedLoginException;
+import app.exception.NotANumberException;
+import app.exception.NotFoundException;
+import app.object.JsonWrapper;
+import app.object.WaitingQueue;
+import app.service.PlayerService;
+import app.service.QueueService;
 import javax.inject.Inject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,9 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
  * @author dion
  */
 @RestController
+@RequestMapping(value = "/queue", produces = MediaType.APPLICATION_JSON_VALUE)
 public class QueueResource {
 
-    public static WaitingQueue waitingQueue = new WaitingQueue();
+    @Inject
+    private QueueService queueService;
 
     @Inject
     private PlayerService playerService;
@@ -30,9 +36,9 @@ public class QueueResource {
      *
      * @return WaitingQueue
      */
-    @RequestMapping(value = "/queue", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "")
     public WaitingQueue queue() {
-        return waitingQueue;
+        return queueService.get();
     }
 
     /**
@@ -40,13 +46,15 @@ public class QueueResource {
      *
      * @param playerId
      * @return index of playerId in the WaitingQueue.
+     * @throws NotANumberException
+     * @throws NotFoundException
      */
-    @RequestMapping(value = "/queue/{playerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public JsonWrapper queuePositionOfPlayer(@PathVariable(value = "playerId") String playerId) {
+    @RequestMapping(value = "/{playerId}", method = RequestMethod.GET)
+    public JsonWrapper queuePositionOfPlayer(@PathVariable(value = "playerId") String playerIdString) throws NotANumberException, NotFoundException {
 
-        int i = ResourceMethods.parseInt(playerId);
+        Long playerId = FindException.parseLong(playerIdString);
 
-        return new JsonWrapper(waitingQueue.getPositionOfPlayer(i) + "");
+        return new JsonWrapper(queueService.getPositionOfPlayer(playerId) + "");
 
     }
 
@@ -57,30 +65,19 @@ public class QueueResource {
      * @param playerId
      * @param sessionToken
      * @return index of playerId in the WaitingQueue.
-     * @throws app.exception.FailedLoginException
+     * @throws FailedLoginException
+     * @throws NotANumberException
      */
-    @RequestMapping(value = "/queue/{playerId}/{sessionToken}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public JsonWrapper joinQueue(@PathVariable(value = "playerId") String playerId, @PathVariable(value = "sessionToken") String sessionToken) throws FailedLoginException {
+    @RequestMapping(value = "/{playerId}/{sessionToken}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public JsonWrapper joinQueue(@PathVariable(value = "playerId") String playerIdString, @PathVariable(value = "sessionToken") String sessionToken) throws FailedLoginException, NotANumberException {
 
-        long i = ResourceMethods.parseLong(playerId);
+        long playerId = FindException.parseLong(playerIdString);
 
         //Verify sessionToken
-        boolean success = playerService.checkSessionToken(i, sessionToken);
+        playerService.checkSessionToken(playerId, sessionToken);
 
-        if (!success) {
-            throw new FailedLoginException();
-        }
-
-        //Get queue posiiton
-        int queuePos;
-
-        try {
-            queuePos = waitingQueue.getPositionOfPlayer(i);
-        } catch (Exception e) {
-            //Player is not yet in queue, add him.
-            waitingQueue.getPlayerIds().add(i);
-            queuePos = waitingQueue.getPlayerIds().size();
-        }
+        //Join queue
+        int queuePos = queueService.joinQueue(playerId);
 
         return new JsonWrapper(queuePos + "");
 

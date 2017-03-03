@@ -1,12 +1,15 @@
 package app.rest;
 
-import app.entity.JsonWrapper;
-import app.entity.LoginCredentials;
+import app.FindException;
 import app.entity.Player;
-import app.entity.RegisterCredentials;
 import app.exception.BlockedException;
 import app.exception.FailedLoginException;
 import app.exception.FailedRegisterException;
+import app.exception.NotANumberException;
+import app.exception.NotFoundException;
+import app.object.JsonWrapper;
+import app.object.LoginCredentials;
+import app.object.RegisterCredentials;
 import app.service.PlayerService;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
@@ -38,7 +41,7 @@ public class PlayerResource {
      *
      * @return players (all)
      */
-    @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "")
 
     public Iterable<Player> getAllPlayers() {
 
@@ -50,11 +53,13 @@ public class PlayerResource {
      *
      * @param playerId
      * @return player matching id
+     * @throws NotANumberException
+     * @throws NotFoundException
      */
-    @RequestMapping(value = "/{playerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Player getPlayer(@PathVariable(value = "playerId") String playerId) {
+    @RequestMapping(value = "/{playerId}", method = RequestMethod.GET)
+    public Player getPlayer(@PathVariable(value = "playerId") String playerId) throws NotFoundException, NotANumberException {
 
-        long i = ResourceMethods.parseInt(playerId);
+        long i = FindException.parseInt(playerId);
 
         Player player = playerService.findOne(i);
         return player;
@@ -64,35 +69,33 @@ public class PlayerResource {
      * Logs in with the given credentials.
      *
      * @param credentials
-     * @param sessionLeaveEmpty auto injected.
+     * @param sessionLeaveEmpty (auto injected).
      * @return session token
-     * @throws FailedLoginException on bad login.
-     * @throws BlockedException on blocked email.
+     * @throws FailedLoginException 
+     * @throws BlockedException 
      */
-    @RequestMapping(value = "/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public JsonWrapper login(@RequestBody LoginCredentials credentials, HttpSession sessionLeaveEmpty) throws FailedLoginException, BlockedException {
 
         //after 2 minutes of inactivity, the session expires...
         sessionLeaveEmpty.setMaxInactiveInterval(60 * 2);
 
-        //check if credentials match
-        Player player = playerService.getPlayerByLogin(credentials);
-        player.setSessionId(sessionLeaveEmpty.getId());
-
+        //login and set session
+        playerService.Login(credentials, sessionLeaveEmpty);
+        
         return new JsonWrapper(sessionLeaveEmpty.getId());
     }
 
     /**
-     * Register a new player account with the given credentials. Throws an error
-     * if the credentials are already in use.
+     * Register a new player account with the given credentials. 
      *
      * @param credentials
      * @return status message
      * @throws FailedRegisterException
      */
-    @RequestMapping(value = "/login/register", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/register", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
-    public JsonWrapper registerAndLogin(@RequestBody RegisterCredentials credentials) throws FailedRegisterException {
+    public JsonWrapper register(@RequestBody RegisterCredentials credentials) throws FailedRegisterException {
 
         //check if credentials are good and if so, make a new player with these credentials.
         playerService.registerWithCredentials(credentials);

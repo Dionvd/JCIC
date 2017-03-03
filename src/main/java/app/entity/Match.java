@@ -1,15 +1,16 @@
 package app.entity;
 
+import app.object.WaitingQueue;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 /**
@@ -22,16 +23,15 @@ import javax.persistence.OneToOne;
 @Entity
 public class Match implements Serializable {
 
-    private static final int PLAYER_SIZE_MAX = 4;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @ElementCollection
-    private List<Long> playerIds;
+    @OneToMany
+    private List<Player> players;
 
-    private int playerSize = PLAYER_SIZE_MAX;
+    private final int maxPlayerSize = Settings.MAX_MATCH_PLAYER_SIZE;
 
     //Map won't be dragged in to game description this way, but can still be requested.
     @JsonIgnore
@@ -43,45 +43,31 @@ public class Match implements Serializable {
     private MatchRules gameRules;
     private int turn;
 
+    /**
+     * Entity constructor. Do not use.
+     */
+    @Deprecated
     public Match() {
     }
 
     /**
-     * Default game constructor.
+     * Default constructor with no players. 
      *
      * @param settings to be used to decide on game rules.
      */
     public Match(Settings settings) {
-        playerIds = new ArrayList<>();
-        map = new MatchMap();
+        players = new ArrayList<>();
+        map = new MatchMap(Settings.DEFAULT_MAP_WIDTH, Settings.DEFAULT_MAP_HEIGHT, id);
         gameRules = new MatchRules(settings);
         turn = 0;
     }
 
     /**
-     * Match constructor that picks and removes players from the WaitingQueue
      *
-     * @param settings
-     * @param waitingQueue
-     */
-    public Match(Settings settings, WaitingQueue waitingQueue) {
-        playerIds = new ArrayList<>();
-        map = new MatchMap();
-        gameRules = new MatchRules(settings);
-        turn = 0;
-
-        while (playerIds.size() < playerSize) {
-            //TODO Exception handling
-            playerIds.add(waitingQueue.getAndRemoveFirst());
-        }
-    }
-
-    /**
-     *
-     * @return size of playerIds in this game.
+     * @return amount of players in this game.
      */
     public int getPlayerCount() {
-        return playerIds.size();
+        return players.size();
     }
 
     public MatchMap getMap() {
@@ -116,12 +102,34 @@ public class Match implements Serializable {
         this.id = id;
     }
 
-    public List<Long> getPlayerIds() {
-        return playerIds;
+    public List<Player> getPlayers() {
+        return players;
     }
 
-    public void setPlayerIds(List<Long> playerIds) {
-        this.playerIds = playerIds;
+    public void setPlayers(List<Player> players) {
+        this.players = players;
     }
 
+    public Player getPlayer(long pID) {
+        for (Player p : players)
+        {
+            if (p.getId() == pID)
+                return p;
+        }
+        return null;
+    }
+
+    public int getMaxPlayerSize() {
+        return maxPlayerSize;
+    }
+
+    public MatchRules getGameRules() {
+        return gameRules;
+    }
+
+    public void setGameRules(MatchRules gameRules) {
+        this.gameRules = gameRules;
+    }
+
+    
 }

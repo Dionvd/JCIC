@@ -1,6 +1,7 @@
 //http://stackoverflow.com/questions/28322376/exclude-some-fields-of-spring-data-rest-resource
 package app.entity;
 
+import app.object.RegisterCredentials;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import javax.persistence.Entity;
@@ -9,7 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- * Player class. Contains all account and player data of one person. Referenced
+ * Contains all account and player data of one person. Referenced
  * by its id in the Match, WaitingQueue and Node classes. Stored as a list in
  * Main.
  *
@@ -47,16 +48,17 @@ public class Player implements Serializable {
     private int failedLoginCount;
 
     /**
-     * Default constructor, sets the id automatically.
+     * Entity constructor. Do not use.
      */
+    @Deprecated
     public Player() {
     }
 
     /**
-     * normal constructor, sets name, email and password and sets the id
-     * automatically.
+     * Default constructor that sets name, email and password from given 
+     * register credentials.
      *
-     * @param credentials with email, password and name
+     * @param credentials with email, name and password
      */
     public Player(RegisterCredentials credentials) {
         this.name = credentials.getName();
@@ -64,6 +66,10 @@ public class Player implements Serializable {
         this.email = credentials.getEmail();
     }
 
+    /**
+     * Checks if the player is unblocked.
+     * @return boolean on unblocked or not.
+     */
     public boolean checkUnblocked() {
         if (blockedTime < System.currentTimeMillis()) {
             blocked = false;
@@ -73,12 +79,19 @@ public class Player implements Serializable {
         return !blocked;
     }
 
+    /**
+     * blocks this player for a few minutes.
+     * @param minutes
+     */
     public void block(int minutes) {
-        //blocks this player for a few minutes.
+        
         blocked = true;
         blockedTime = System.currentTimeMillis() + 1000 * 60 * minutes;
     }
 
+    /**
+     * Increases failed login count.
+     */
     public void incrementFailedLoginCount() {
         failedLoginCount++;
     }

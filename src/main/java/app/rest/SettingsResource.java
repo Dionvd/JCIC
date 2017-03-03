@@ -1,7 +1,8 @@
 package app.rest;
 
-import app.dao.SettingsRepository;
 import app.entity.Settings;
+import app.exception.NotFoundException;
+import app.service.SettingsService;
 import javax.inject.Inject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,19 +18,21 @@ import org.springframework.web.bind.annotation.RestController;
  * @author dion
  */
 @RestController
+@RequestMapping(value = "/settings", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 public class SettingsResource {
 
     @Inject
-    SettingsRepository settingsRepository;
+    SettingsService settingsService;
 
     /**
      * Gets the current settings, as chosen by the admin panel.
      *
      * @return settings
+     * @throws NotFoundException
      */
-    @RequestMapping(value = "/settings", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Settings settings() {
-        return settingsRepository.findOne(0L);
+    @RequestMapping(value = "")
+    public Settings settings() throws NotFoundException {
+        return settingsService.get();
     }
 
 }

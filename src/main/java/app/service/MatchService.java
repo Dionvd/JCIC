@@ -1,16 +1,23 @@
 package app.service;
 
+import app.FindException;
 import app.dao.MatchRepository;
 import app.entity.Match;
-import app.entity.Node;
-import app.entity.WaitingQueue;
+import app.entity.Player;
+import app.object.WaitingQueue;
 import app.exception.NotFoundException;
+import app.object.Move;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 
 /**
- * Responsible for creating and disposing of Matches.
+ * Responsible for handling Match logic when a RESTful web service is called and
+ * accessing related JPA repositories appropriately.
  *
  * @author dion
  */
@@ -19,35 +26,36 @@ public class MatchService {
 
     @Inject
     MatchRepository matchRep;
-
-    private static final int MAX_MATCHES = 5;
-    private ArrayList<Match> activeMatches = new ArrayList<>();
-
-    private MatchService() {
-    }
-
-    public void checkForNewMatch(WaitingQueue queue) {
-        //TODO
-    }
-
-    public void hostNewMatch() {
-        //TODO
-    }
-
-    public void save(Match match) {
-        matchRep.save(match);
-    }
-
+    
+    Map<Long, Iterable<Move>> playerMoves = new HashMap<>();
+    
+    /**
+     * Find a single match.
+     *
+     * @param l
+     * @return
+     * @throws NotFoundException
+     */
     public Match findOne(long l) throws NotFoundException {
-        Match match = matchRep.findOne(l);
-        if (match == null) {
-            throw new NotFoundException();
-        }
-        return match;
+        return FindException.notFoundOnNull(matchRep.findOne(l));
     }
 
+    /**
+     * Find all matches.
+     *
+     * @return
+     */
     public Iterable<Match> findAll() {
         return matchRep.findAll();
+    }
+
+    public void postMoves(long matchId, long playerId, Iterable moves) {
+        
+        playerMoves.put(playerId, moves);
+    }
+
+    public Player findMatchPlayer(long matchId, long playerId) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

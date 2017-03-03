@@ -5,10 +5,15 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 
+/**
+ * Data access interface for the Player entity. Spring Data JPA automatically 
+ * creates a class with this interface, that can be injected.
+ * 
+ * @author dion
+ */
 public interface PlayerRepository extends CrudRepository<Player, Long> {
 
-    public List<Player> findByName(String name);
+    public List<Player> findByNameIgnoreCase(String name);
 
-    public List<Player> findByEmail(String email);
-
+    public List<Player> findByEmailIgnoreCase(String email);
 }
