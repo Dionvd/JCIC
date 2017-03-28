@@ -1,5 +1,7 @@
 package app.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.awt.Point;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -15,6 +17,8 @@ import javax.persistence.Id;
 @Entity
 public class Node implements Serializable {
 
+    private final static int MAX_POWER = 100;
+    
     @Id
     private long id; //MAPIDXXYY
 
@@ -23,7 +27,8 @@ public class Node implements Serializable {
 
     //-1 = empty, 0 = normal, 1 = powerline, 2 = overclocked, 3 = guarded, 4 = storage
     private int type = 0;
-
+    
+    
     /**
      * Entity constructor. Do not use.
      */
@@ -34,45 +39,50 @@ public class Node implements Serializable {
     /**
      * Default Constructor. Automatically sets id.
      *
+     * @param location
      * @param matchId
-     * @param x
-     * @param y
      */
-    public Node(int x, int y, long matchId) {
-        this.id = Node.calcKey(matchId, x, y);
+    public Node(Point location, long matchId) {
+        this.id = Node.calcKey(matchId, location);
     }
 
     /**
      * Calculates the node key by combining the mapId, x coordinate
      * and y coordinate.
      * @param matchId
-     * @param x
-     * @param y
+     * @param location
      * @return id
      */
-    public static Long calcKey(Long matchId, int x, int y)
+
+    public static Long calcKey(Long matchId, Point location)
     {
-        return matchId * 10000 + x*100+y;
+        return matchId * 10000 + location.x*100+location.y;
     }
     
     /**
      * Reads the X coordinate from the id.
      * @return X coordinate
      */
+    @JsonIgnore
     public int getX() {
         return (int) ((id % 10000) / 100);
     }
-
-    
     
     /**
      * Reads the Y coordinate from the id.
      * @return Y coordinate
      */
+    @JsonIgnore
     public int getY() {
         return (int) (id % 100);
     }
 
+    
+    public void adjustPower(int amount) {
+        this.power+=amount;
+        if (power > MAX_POWER) power = MAX_POWER;
+    }
+    
     public int getPower() {
         return power;
     }
@@ -80,6 +90,7 @@ public class Node implements Serializable {
     public void setPower(int power) {
         this.power = power;
     }
+    
 
     public long getOwnerId() {
         return ownerId;

@@ -1,4 +1,4 @@
-package app;
+package app.bean;
 
 import app.dao.MatchRepository;
 import app.dao.PlayerRepository;
@@ -10,22 +10,23 @@ import app.entity.Node;
 import app.entity.Player;
 import app.entity.Settings;
 import app.entity.Starterpack;
-import app.object.RegisterCredentials;
-import app.object.WaitingQueue;
-import app.rest.QueueResource;
+import app.dto.RegisterCredentials;
+import app.dto.WaitingQueue;
 import javax.inject.Inject;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import app.service.*;
+import java.awt.Point;
 
 /**
+ * Bean class for mocking Entity data and storing it in the Repository.
  *
  * @author dion
  */
 @Configuration
 public class MockDataBean {
-    
+
     @Inject
     PlayerRepository playerRep;
 
@@ -37,17 +38,29 @@ public class MockDataBean {
 
     @Inject
     StarterpackRepository starterpackRep;
-    
+
     @Inject
     QueueService queueService;
-    
 
+    /**
+     * Bean that mocks the entity data and stores it in the repository. When
+     * enabled, the application will have some data to work with when testing
+     * out its features. mockData() can be turned on or off through
+     * Settings.MOCKDATA. The mocked round is also immediately hosted and can be
+     * visualized with the Unity visuals.
+     *
+     * Beans are automatically run when the application is booted.
+     *
+     * @return
+     */
     @Bean
     public CommandLineRunner mockData() {
         return (args) -> {
 
-            if (!Settings.MOCKDATA) return;
-            
+            if (!Settings.MOCKDATA) {
+                return;
+            }
+
             System.out.println("--INITIATING MOCK DATA--");
             WaitingQueue waitingQueue = QueueService.getWaitingQueue();
             Settings settings = new Settings();
@@ -69,24 +82,22 @@ public class MockDataBean {
 
             Match match = new Match(settings);
 
-            match.setMap(new MatchMap(10, 10, match.getId()));
-            match.setTurn(4);
-
+            match.setMap(new MatchMap(new Point(10, 10), match.getId()));
             match.getPlayers().add(player);
             match.getPlayers().add(player2);
-                    
+
             waitingQueue.setMaxCount(50);
             waitingQueue.getPlayers().add(player3);
             waitingQueue.getPlayers().add(player4);
             waitingQueue.getPlayers().add(player5);
 
             Node startNode = match.getMap().getNode(0, 0);
-            startNode.setOwnerId(0L);
-            startNode.setPower(50);
+            startNode.setOwnerId(1);
+            startNode.setPower(30);
 
             Node startNode2 = match.getMap().getNode(9, 9);
-            startNode2.setOwnerId(1);
-            startNode2.setPower(50);
+            startNode2.setOwnerId(2);
+            startNode2.setPower(30);
 
             System.out.println("--SAVING MOCK DATA--");
             settingsRep.save(settings);
@@ -97,7 +108,9 @@ public class MockDataBean {
             playerRep.save(player4);
             playerRep.save(player5);
             matchRep.save(match);
-            
+
+            HostGame.storeMatch(match);
+
             System.out.println("--MOCK DATA SUCCESFUL--");
 
         };

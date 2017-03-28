@@ -1,15 +1,15 @@
 //https://www.leveluplunch.com/java/tutorials/014-post-json-to-spring-rest-webservice/
 package app.service;
 
-import app.FindException;
+import app.util.Validate;
 import app.dao.PlayerRepository;
 import app.entity.Player;
 import app.exception.BlockedException;
 import app.exception.FailedRegisterException;
 import app.exception.FailedLoginException;
 import app.exception.NotFoundException;
-import app.object.LoginCredentials;
-import app.object.RegisterCredentials;
+import app.dto.LoginCredentials;
+import app.dto.RegisterCredentials;
 import java.util.List;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
@@ -129,7 +129,7 @@ public class PlayerService {
      */
     public Player findOne(long l) throws NotFoundException {
 
-        return FindException.notFoundOnNull(playerRep.findOne(l));
+        return Validate.notNull(playerRep.findOne(l));
     }
 
     /**
@@ -140,7 +140,7 @@ public class PlayerService {
      * @throws NotFoundException
      */
     public Iterable<Player> findByName(String name) throws NotFoundException {
-        return FindException.notFoundOnEmpty(playerRep.findByNameIgnoreCase(name));
+        return Validate.notEmpty(playerRep.findByNameIgnoreCase(name));
     }
 
 }

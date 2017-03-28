@@ -1,4 +1,4 @@
-package app;
+package app.util;
 
 import app.exception.NotANumberException;
 import app.exception.NotFoundException;
@@ -11,14 +11,14 @@ import com.google.common.collect.Iterables;
  *
  * @author dion
  */
-public final class FindException {
+public final class Validate {
 
    
     /**
      * Private constructor of utility class. 
      * This makes it impossible to instantiate this class.
      */
-    private FindException() {
+    private Validate() {
     }
 
     /**
@@ -67,7 +67,7 @@ public final class FindException {
      * @return
      * @throws NotFoundException
      */
-    public static <T extends Object> T notFoundOnNull(T object) throws NotFoundException
+    public static <T extends Object> T notNull(T object) throws NotFoundException
     {
         if (object == null) throw new NotFoundException();
         return object;
@@ -80,7 +80,7 @@ public final class FindException {
      * @return
      * @throws NotFoundException
      */
-    public static Iterable notFoundOnEmpty(Iterable objects) throws NotFoundException {
+    public static Iterable notEmpty(Iterable objects) throws NotFoundException {
         if (Iterables.size(objects) == 0)
             throw new NotFoundException();
         return objects;

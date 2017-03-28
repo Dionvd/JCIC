@@ -3,12 +3,15 @@ package app.rest;
 import app.entity.*;
 import app.exception.NotANumberException;
 import app.exception.NotFoundException;
-import app.object.Action;
-import app.object.JsonWrapper;
-import app.object.Move;
-import app.object.RegisterCredentials;
+import app.enums.Action;
+import app.dto.JsonWrapper;
+import app.dto.Move;
+import app.enums.MoveDirection;
+import app.dto.MoveList;
+import app.dto.RegisterCredentials;
 import app.service.MatchService;
 import app.service.NodeService;
+import java.awt.Point;
 import java.util.ArrayList;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -57,7 +60,7 @@ public class MatchResourceTest extends Assert {
 
         match = new Match(new Settings());
 
-        match.setMap(new MatchMap(10, 10, match.getId()));
+        match.setMap(new MatchMap(new Point(10, 10), match.getId()));
         match.setTurn(4);
         match.setId(TEST_ID_LONG);
 
@@ -77,13 +80,13 @@ public class MatchResourceTest extends Assert {
         match.setPlayers(players);
 
         moves = new ArrayList<>();
-        moves.add(new Move(0,0,Action.SLEEP,0));
-        moves.add(new Move(0,0,Action.SLEEP,0));
-        moves.add(new Move(0,0,Action.SLEEP,0));
+        moves.add(new Move(new Point(0,0),Action.SLEEP,MoveDirection.CENTRAL));
+        moves.add(new Move(new Point(0,0),Action.SLEEP,MoveDirection.CENTRAL));
+        moves.add(new Move(new Point(0,0),Action.SLEEP,MoveDirection.CENTRAL));
         
         ArrayList<Match> matchesList = new ArrayList<>();
         matchesList.add(match);
-        matches = matchesList;
+        matches = matchesList; 
     }
 
     @Test
@@ -154,7 +157,7 @@ public class MatchResourceTest extends Assert {
     public void testPostMoves() throws Exception {
         
         JsonWrapper value = matchResource.postMoves(TEST_ID_STRING, TEST_ID_STRING, moves);
-        verify(matchService).postMoves(TEST_ID_LONG, TEST_ID_LONG, moves);
+       //TODO verify(matchService).postMoves(TEST_ID_LONG, TEST_ID_LONG, new MoveList(moves));
         assertNotNull(value);
     }
 

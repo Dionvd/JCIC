@@ -1,9 +1,9 @@
 package app.rest;
 
 import app.entity.Player;
-import app.object.JsonWrapper;
-import app.object.LoginCredentials;
-import app.object.RegisterCredentials;
+import app.dto.JsonWrapper;
+import app.dto.LoginCredentials;
+import app.dto.RegisterCredentials;
 import app.service.PlayerService;
 import java.util.ArrayList;
 import java.util.Enumeration;

@@ -1,7 +1,7 @@
 //http://stackoverflow.com/questions/28322376/exclude-some-fields-of-spring-data-rest-resource
 package app.entity;
 
-import app.object.RegisterCredentials;
+import app.dto.RegisterCredentials;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import javax.persistence.Entity;

@@ -1,4 +1,4 @@
-package app.object;
+package app.dto;
 
 import app.entity.Player;
 import java.util.ArrayList;

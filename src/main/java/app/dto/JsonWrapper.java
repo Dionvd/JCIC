@@ -1,4 +1,4 @@
-package app.object;
+package app.dto;
 
 /**
  * The JsonWrapper class is very simple class to store a variable for the

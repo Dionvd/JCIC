@@ -1,12 +1,13 @@
 package app.service;
 
+import app.bean.SocketToUnity;
 import app.dao.MatchRepository;
 import app.dao.PlayerRepository;
 import app.dao.SettingsRepository;
 import app.entity.Match;
 import app.entity.Player;
 import app.entity.Settings;
-import app.object.WaitingQueue;
+import app.dto.WaitingQueue;
 import app.exception.NotFoundException;
 import javax.inject.Inject;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class QueueService {
 
-    private static WaitingQueue waitingQueue = new WaitingQueue();
+    private static final WaitingQueue waitingQueue = new WaitingQueue();
 
     @Inject
     PlayerRepository playerRep;
@@ -75,9 +76,15 @@ public class QueueService {
         
         try {
             queuePos = getPositionOfPlayer(playerId);
+            
         } catch (Exception e) {
             //Player is not yet in queue, add him.
             waitingQueue.getPlayers().add(playerRep.findOne(playerId));
+            
+            //check if new match can be made
+            checkForNewMatch();
+            
+            SocketToUnity.setQueueUpdate(waitingQueue);
             queuePos = waitingQueue.getSize();
         }
         
@@ -91,7 +98,7 @@ public class QueueService {
      */
     public Match checkForNewMatch() {
         
-        if (waitingQueue.getSize() > Settings.MAX_MATCH_PLAYER_SIZE && openMatchSpots > 0)
+        if (waitingQueue.getSize() >= Settings.MAX_MATCH_PLAYER_SIZE && openMatchSpots > 0)
         {
             //make a new Match
             openMatchSpots--;
@@ -102,7 +109,8 @@ public class QueueService {
             while (match.getPlayerCount() < match.getMaxPlayerSize()) {
                 match.getPlayers().add(waitingQueue.getAndRemoveFirst());
             }
-            
+            SocketToUnity.setQueueUpdate(waitingQueue);
+
             matchRep.save(match);
             return match;
         }

@@ -1,7 +1,7 @@
 package app.entity;
 
-import app.object.WaitingQueue;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +43,8 @@ public class Match implements Serializable {
     private MatchRules gameRules;
     private int turn;
 
+    private boolean ended = false;
+    
     /**
      * Entity constructor. Do not use.
      */
@@ -57,7 +59,7 @@ public class Match implements Serializable {
      */
     public Match(Settings settings) {
         players = new ArrayList<>();
-        map = new MatchMap(Settings.DEFAULT_MAP_WIDTH, Settings.DEFAULT_MAP_HEIGHT, id);
+        map = new MatchMap(new Point(Settings.DEFAULT_MAP_WIDTH, Settings.DEFAULT_MAP_HEIGHT), id);
         gameRules = new MatchRules(settings);
         turn = 0;
     }
@@ -131,5 +133,8 @@ public class Match implements Serializable {
         this.gameRules = gameRules;
     }
 
+    public boolean isEnded() {
+        return ended;
+    }
     
 }

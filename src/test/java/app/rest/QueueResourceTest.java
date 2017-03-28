@@ -1,9 +1,9 @@
 package app.rest;
 
 import app.entity.Player;
-import app.object.JsonWrapper;
-import app.object.RegisterCredentials;
-import app.object.WaitingQueue;
+import app.dto.JsonWrapper;
+import app.dto.RegisterCredentials;
+import app.dto.WaitingQueue;
 import app.service.PlayerService;
 import app.service.QueueService;
 import org.junit.Before;

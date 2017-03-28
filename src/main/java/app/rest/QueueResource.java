@@ -1,11 +1,11 @@
 package app.rest;
 
-import app.FindException;
+import app.util.Validate;
 import app.exception.FailedLoginException;
 import app.exception.NotANumberException;
 import app.exception.NotFoundException;
-import app.object.JsonWrapper;
-import app.object.WaitingQueue;
+import app.dto.JsonWrapper;
+import app.dto.WaitingQueue;
 import app.service.PlayerService;
 import app.service.QueueService;
 import javax.inject.Inject;
@@ -36,7 +36,7 @@ public class QueueResource {
      *
      * @return WaitingQueue
      */
-    @RequestMapping(value = "")
+    @RequestMapping(value = "", method = RequestMethod.GET)
     public WaitingQueue queue() {
         return queueService.get();
     }
@@ -44,7 +44,7 @@ public class QueueResource {
     /**
      * Gets the queue position of a specific player.
      *
-     * @param playerId
+     * @param playerIdString
      * @return index of playerId in the WaitingQueue.
      * @throws NotANumberException
      * @throws NotFoundException
@@ -52,7 +52,7 @@ public class QueueResource {
     @RequestMapping(value = "/{playerId}", method = RequestMethod.GET)
     public JsonWrapper queuePositionOfPlayer(@PathVariable(value = "playerId") String playerIdString) throws NotANumberException, NotFoundException {
 
-        Long playerId = FindException.parseLong(playerIdString);
+        Long playerId = Validate.parseLong(playerIdString);
 
         return new JsonWrapper(queueService.getPositionOfPlayer(playerId) + "");
 
@@ -62,7 +62,7 @@ public class QueueResource {
      * Player joins the waiting queue, if he is not already in the queue Returns
      * queue position of player.
      *
-     * @param playerId
+     * @param playerIdString
      * @param sessionToken
      * @return index of playerId in the WaitingQueue.
      * @throws FailedLoginException
@@ -71,7 +71,7 @@ public class QueueResource {
     @RequestMapping(value = "/{playerId}/{sessionToken}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     public JsonWrapper joinQueue(@PathVariable(value = "playerId") String playerIdString, @PathVariable(value = "sessionToken") String sessionToken) throws FailedLoginException, NotANumberException {
 
-        long playerId = FindException.parseLong(playerIdString);
+        long playerId = Validate.parseLong(playerIdString);
 
         //Verify sessionToken
         playerService.checkSessionToken(playerId, sessionToken);

@@ -1,44 +1,33 @@
-package app.object;
+package app.dto;
 
 /**
- * RegisterCredentials contain the data required to register an account. Handles
+ * LoginCredentials contains the data required to login an account. Handles
  * sensitive information. It is used in post requests from the client, but it
- * should never be sent to the client.
+ * should never be returned to the client.
  *
  * @author dion
  */
-public class RegisterCredentials {
+public class LoginCredentials {
 
     private String email;
-    private String name;
     private String password;
 
     /**
      * Empty constructor. Do not use.
      */
     @Deprecated
-    public RegisterCredentials()
+    public LoginCredentials()
     {
     }
     
     /**
      * Default constructor.
      * @param email
-     * @param name
      * @param password
      */
-    public RegisterCredentials(String email, String name, String password) {
+    public LoginCredentials(String email, String password) {
         this.email = email;
-        this.name = name;
         this.password = password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getEmail() {

@@ -1,6 +1,7 @@
 package app.entity;
 
-import app.exception.NotFoundOutOfBoundsException;
+import app.exception.ParameterOutOfBoundsException;
+import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ import javax.persistence.OneToMany;
  * @author dion
  */
 @Entity
-public class MatchMap implements Serializable {
+public class MatchMap implements Serializable  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -44,20 +45,19 @@ public class MatchMap implements Serializable {
      * Default constructor. generates nodes based on the given width and
      * height of the map.
      *
-     * @param width of the map in nodes
-     * @param height of the map in nodes
+     * @param mapSize
      * @param matchId of the match that this map is part of.
      */
-    public MatchMap(int width, int height, long matchId) {
+    public MatchMap(Point mapSize, long matchId) {
 
-        this.width = width;
-        this.height = height;
+        this.width = mapSize.x;
+        this.height = mapSize.y;
         nodes = new ArrayList<>();
 
         for (int y = 0; y < height; y++) {
 
             for (int x = 0; x < width; x++) {
-                nodes.add(new Node(x,y,matchId));
+                nodes.add(new Node(new Point(x, y),matchId));
             }
         }
     }
@@ -66,14 +66,15 @@ public class MatchMap implements Serializable {
      * @param x coordinate as integer.
      * @param y coordinate as integer.
      * @return Node located at coordinates x and y.
-     * @throws NotFoundOutOfBoundsException when index are out of bounds.
+     * @throws ParameterOutOfBoundsException when index are out of bounds.
      */
-    public Node getNode(int x, int y) throws NotFoundOutOfBoundsException {
+    public Node getNode(int x, int y) throws ParameterOutOfBoundsException {
 
         try {
+            if (x < 0 | x >= width) throw new ParameterOutOfBoundsException();
             return nodes.get(x + y*width);
         } catch (IndexOutOfBoundsException e) {
-            throw new NotFoundOutOfBoundsException(e);
+            throw new ParameterOutOfBoundsException(e);
         }
 
     }

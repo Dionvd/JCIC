@@ -1,6 +1,6 @@
 package app.service;
 
-import app.FindException;
+import app.util.Validate;
 import app.dao.StarterpackRepository;
 import app.entity.Starterpack;
 import app.exception.NotFoundException;
@@ -26,7 +26,7 @@ public class HelpService {
      * @throws NotFoundException
      */
     public Starterpack getStarterpackByLanguage(String language) throws NotFoundException {
-        return (Starterpack) FindException.notFoundOnNull(starterpackRep.findByLanguageIgnoreCase(language));
+        return (Starterpack) Validate.notNull(starterpackRep.findByLanguageIgnoreCase(language));
     }
     
     

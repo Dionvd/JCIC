@@ -1,7 +1,7 @@
 //http://stackoverflow.com/questions/12669497/using-enum-as-key-for-map
 package app.entity;
 
-import app.object.Action;
+import app.enums.Action;
 import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.Map;

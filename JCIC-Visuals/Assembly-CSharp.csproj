@@ -46,6 +46,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Elenesski Generic Move Camera\GenericMoveCamera.cs" />
+     <Compile Include="Assets\Elenesski Generic Move Camera\GenericMoveCameraInputs.cs" />
      <Compile Include="Assets\External Assets\Gems Ultimate Pack\Scripts\AnimationScript.cs" />
      <Compile Include="Assets\External Assets\SampleScenes\Menu\Scripts\MenuSceneLoader.cs" />
      <Compile Include="Assets\External Assets\SampleScenes\Menu\Scripts\PauseMenu.cs" />
@@ -192,10 +194,14 @@
      <Compile Include="Assets\JSON\JSONTemplates.cs" />
      <Compile Include="Assets\JSON\VectorTemplates.cs" />
      <Compile Include="Assets\Scripts\Colors.cs" />
+     <Compile Include="Assets\Scripts\Interface.cs" />
      <Compile Include="Assets\Scripts\Map.cs" />
+     <Compile Include="Assets\Scripts\Move.cs" />
+     <Compile Include="Assets\Scripts\Moves.cs" />
      <Compile Include="Assets\Scripts\Node.cs" />
+     <Compile Include="Assets\Scripts\SizeScaler.cs" />
      <Compile Include="Assets\Scripts\SocketClient.cs" />
-     <Compile Include="Assets\Scripts\SpawnMap.cs" />
+     <Compile Include="Assets\Scripts\UpdateGame.cs" />
      <None Include="Assets\External Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
      <None Include="Assets\External Assets\Standard Assets\Effects\ImageEffects\Shaders\_BloomAndFlares\BlendOneOne.shader" />
      <None Include="Assets\External Assets\Standard Assets\Effects\ImageEffects\Shaders\NoiseEffectShaderRGB.shader" />

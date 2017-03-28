@@ -1,15 +1,15 @@
 package app.rest;
 
-import app.FindException;
+import app.util.Validate;
 import app.entity.Player;
 import app.exception.BlockedException;
 import app.exception.FailedLoginException;
 import app.exception.FailedRegisterException;
 import app.exception.NotANumberException;
 import app.exception.NotFoundException;
-import app.object.JsonWrapper;
-import app.object.LoginCredentials;
-import app.object.RegisterCredentials;
+import app.dto.JsonWrapper;
+import app.dto.LoginCredentials;
+import app.dto.RegisterCredentials;
 import app.service.PlayerService;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
@@ -41,7 +41,7 @@ public class PlayerResource {
      *
      * @return players (all)
      */
-    @RequestMapping(value = "")
+    @RequestMapping(value = "", method = RequestMethod.GET)
 
     public Iterable<Player> getAllPlayers() {
 
@@ -59,7 +59,7 @@ public class PlayerResource {
     @RequestMapping(value = "/{playerId}", method = RequestMethod.GET)
     public Player getPlayer(@PathVariable(value = "playerId") String playerId) throws NotFoundException, NotANumberException {
 
-        long i = FindException.parseInt(playerId);
+        long i = Validate.parseInt(playerId);
 
         Player player = playerService.findOne(i);
         return player;
