@@ -5,7 +5,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- *
+ * This class is used to send a JSON object that contains moves, as opposed to
+ * a raw list of moves where data might be lost on transfer.
  * @author dion
  */
 public class MoveList {
@@ -15,8 +16,6 @@ public class MoveList {
     public MoveList() {
         moves = new ArrayList<>();
     }
-
-    
     
     public MoveList(Collection<Move> values) {
         moves = new ArrayList<>();

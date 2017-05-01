@@ -3,15 +3,19 @@ package app.bean;
 
 import app.dao.MatchRepository;
 import app.dao.NodeRepository;
+import app.dao.PlayerRepository;
 import app.entity.Match;
 import app.entity.MatchMap;
 import app.entity.Node;
 import app.enums.Action;
 import app.dto.Move;
 import app.enums.MoveDirection;
+import app.dto.PlayerList;
 import app.dto.MoveList;
 import app.dto.WaitingQueue;
 import app.entity.Player;
+import app.service.QueueService;
+import app.ui.Log;
 import java.awt.Point;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -45,7 +49,7 @@ public class SocketToUnity {
     private static OutputStream os;
 
     private static final MoveList movesToSend = new MoveList();
-    private static final List<String> waitingQueueToSend = new ArrayList<>();
+    private static final List<Player> waitingQueueToSend = new ArrayList<>();
     
     @Inject
     private MatchRepository matchRep;
@@ -55,12 +59,17 @@ public class SocketToUnity {
     private NodeRepository nodeRep;
     private static NodeRepository nodeRepository;
     
+    @Inject
+    private PlayerRepository playerRep;
+    private static PlayerRepository playerRepository;
+    
     @Bean
     public CommandLineRunner socketStaticInjects() {
         
         return (args) -> { 
             matchRepository = matchRep;
             nodeRepository = nodeRep;
+            playerRepository = playerRep;
         };
         
     }
@@ -68,7 +77,7 @@ public class SocketToUnity {
     public static void run() {
 
         try {
-            System.out.println("--STARTING SOCKET SERVER--");
+            Log.write("--STARTING SOCKET SERVER--");
 
             serverSocket = new ServerSocket(HOST_PORT, 1);
 
@@ -82,11 +91,15 @@ public class SocketToUnity {
                     } catch (IOException ex) {
                         Logger.getLogger(SocketToUnity.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    System.out.println("Client connected...");
+                    Log.write("Client connected...");
                     
                     
-                    boolean success = send(getMap());
+                    boolean success = send(getMatch());
                     if (success == false) return;
+                    
+                    success = send(getQueue());
+                    if (success == false) return;
+
                     
                     while (true) {
                         try {
@@ -94,8 +107,8 @@ public class SocketToUnity {
                             if (takeMoves != null && !takeMoves.getMoves().isEmpty())
                             { success = send(takeMoves); if (success == false) return; }
                             
-                            List<String> takeQueue = takeQueue();
-                            if (takeQueue != null && !takeQueue.isEmpty())
+                            PlayerList takeQueue = takeQueue();
+                            if (takeQueue != null && !takeQueue.getPlayers().isEmpty())
                             { success = send(takeQueue); if (success == false) return; }
                             
                             sleep(500);
@@ -107,11 +120,11 @@ public class SocketToUnity {
                 }
 
             }.start();
-            System.out.println("--STARTED!--");
+            Log.write("--SOCKET STARTED!--");
  
 
         } catch (IOException ex) {
-            System.out.println("Failed to start socket!");
+            Log.write("Failed to start socket!");
             Logger.getLogger(SocketToUnity.class.getName()).log(Level.SEVERE, null, ex);
 
         }
@@ -137,7 +150,7 @@ public class SocketToUnity {
             toSendLenBytes[3] = (byte) ((toSendLen >> 24) & 0xff);
 
             //send to client
-            System.out.println("Sending to Unity : " + toSend);
+            Log.write("Sending to Unity : " + toSend);
             os.write(toSendLenBytes);
             os.write(toSendBytes);
             
@@ -157,7 +170,7 @@ public class SocketToUnity {
 
     public static void restartSocket() {
         try {
-            System.out.println("Connection with Unity broke! Restarting socket!");
+            Log.write("Connection with Unity broke! Restarting socket!");
             os.close();
             socket.close();
             serverSocket.close();
@@ -167,18 +180,30 @@ public class SocketToUnity {
         }
     }
 
-    
-    public static MatchMap getMap() {
+    /**
+     * Gets the requested match out of the database. Because there is no spring
+     * data session the lazy-load does not work and required values have to be
+     * manually loaded and attached.
+     * 
+     * @return
+     */
+    public static Match getMatch() {
         try {
         Match match = matchRepository.findOne(1L);
         MatchMap map = match.getMap();
         
-        Iterable<Node> findAll = nodeRepository.findAll();
+        Iterable<Node> foundNodes = nodeRepository.findAll();
         ArrayList<Node> nodes = new ArrayList<>();
-        findAll.forEach(nodes::add);
+        foundNodes.forEach(nodes::add);
         map.setNodes(nodes);
-        match.setPlayers(new ArrayList<>());
-        return map;
+        
+        Iterable<Player> foundPlayers = matchRepository.findPlayersByMatchId(match.getId()).get();
+        ArrayList<Player> players = new ArrayList<>();
+        foundPlayers.forEach(players::add);
+        match.setPlayers(players);
+        
+        return match;
+        
         }
         catch (Exception e) { return null; }
     }
@@ -187,17 +212,23 @@ public class SocketToUnity {
     public static MoveList takeMoves() {
         synchronized (movesToSend)
         {
-        MoveList moves = new MoveList(movesToSend.getMoves());
-        movesToSend.getMoves().clear();
-        return moves;
+            MoveList moves = new MoveList(movesToSend.getMoves());
+            movesToSend.getMoves().clear();
+            return moves;
         }
     }
     
-    public static List<String> takeQueue() {
+    public static PlayerList getQueue() { 
+        
+        takeQueue();
+        return new PlayerList(QueueService.getWaitingQueue().getPlayers());
+    }
+    
+    public static PlayerList takeQueue() {
         
         synchronized (waitingQueueToSend)
         {
-            List<String> queue = new ArrayList<>(waitingQueueToSend);
+            PlayerList queue = new PlayerList(waitingQueueToSend);
             waitingQueueToSend.clear();
             return queue;
         }
@@ -224,7 +255,7 @@ public class SocketToUnity {
             List<Player> players = waitingQueue.getPlayers();
 
             players.forEach((player) -> {
-                waitingQueueToSend.add(player.getName());
+                waitingQueueToSend.add(player);
             });
         }
     }

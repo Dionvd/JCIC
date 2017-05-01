@@ -1,6 +1,8 @@
 //https://spring.io/guides/gs/rest-service/
 package app;
 
+import app.bean.AdminPanelHandler;
+import app.ui.AdminPanel;
 import app.bean.SocketToUnity;
 import app.bean.HostGame;
 import org.springframework.boot.SpringApplication;
@@ -25,9 +27,15 @@ public class Application {
      */
     public static void main(String[] args) {
 
+        AdminPanel panel = new AdminPanel();
+        
         SpringApplication.run(Application.class, args);
 
         SocketToUnity.run();
+                
+        AdminPanelHandler.run();
+        
+        panel.unlock();
 
         HostGame.run();
         

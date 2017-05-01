@@ -1,10 +1,16 @@
 fileFormatVersion: 2
 guid: c6a367086896f4d62b2f4aa372004043
-timeCreated: 1486464657
+timeCreated: 1491817274
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - HexagonPrefab: {fileID: 1739742247777686, guid: 3706e8b3a00484c9b8f454a0b4bb46a8,
+      type: 2}
+  - BuildingPrefab: {fileID: 1238324050995456, guid: abe7f06a741d84362ae662a99bf86d99,
+      type: 2}
+  - WallPrefab: {fileID: 1909049963653806, guid: 1b100efeb677f4f33ae69a8b4929b4ce,
+      type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

@@ -17,6 +17,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import app.service.*;
+import app.ui.Log;
 import java.awt.Point;
 
 /**
@@ -61,7 +62,7 @@ public class MockDataBean {
                 return;
             }
 
-            System.out.println("--INITIATING MOCK DATA--");
+            Log.write("--INITIATING MOCK DATA--");
             WaitingQueue waitingQueue = QueueService.getWaitingQueue();
             Settings settings = new Settings();
 
@@ -88,8 +89,8 @@ public class MockDataBean {
 
             waitingQueue.setMaxCount(50);
             waitingQueue.getPlayers().add(player3);
-            waitingQueue.getPlayers().add(player4);
-            waitingQueue.getPlayers().add(player5);
+            waitingQueue.getPlayers().add(player4);            
+            SocketToUnity.setQueueUpdate(waitingQueue);
 
             Node startNode = match.getMap().getNode(0, 0);
             startNode.setOwnerId(1);
@@ -98,8 +99,16 @@ public class MockDataBean {
             Node startNode2 = match.getMap().getNode(9, 9);
             startNode2.setOwnerId(2);
             startNode2.setPower(30);
+            
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < 2; j++) {
+                    Node blockedNode = match.getMap().getNode(4+i, 4+j);
+                    blockedNode.setType(-1);
+                }
+            }
+            
 
-            System.out.println("--SAVING MOCK DATA--");
+            Log.write("--SAVING MOCK DATA--");
             settingsRep.save(settings);
             starterpackRep.save(new Starterpack("Java starter package", "Java", "http://www.example.com/javapackage.zip"));
             playerRep.save(player);
@@ -111,7 +120,7 @@ public class MockDataBean {
 
             HostGame.storeMatch(match);
 
-            System.out.println("--MOCK DATA SUCCESFUL--");
+            Log.write("--MOCK DATA SUCCESFUL--");
 
         };
     }

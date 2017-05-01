@@ -24,6 +24,6 @@ public class SettingsService {
 
     public Settings get() throws NotFoundException {
         
-        return Validate.notNull(settingsRep.findOne(0L));
+        return Validate.notNull(settingsRep.findOne(1L));
     }
 }

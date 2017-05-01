@@ -6,40 +6,56 @@ using System.Net.Sockets;
 using System;
 using System.Threading;
 
+/// <summary>
+/// Socket Client. Responsible for the communication with the web service.
+/// Received messages are sent to UpdateGame class to be processed.
+/// </summary>
 public class SocketClient : MonoBehaviour
 {
 
-	bool restart = false;
-	float restartTime;
+	bool Restart = false;
+	float RestartTime;
 
-	IPEndPoint serverAddress;
-	Socket clientSocket;
+	IPEndPoint ServerAddress = new IPEndPoint (IPAddress.Parse ("127.0.0.1"), 5242);
+	Socket ClientSocket;
 
+
+	/// <summary>
+	/// On application start, this script will try to listen to ServerAddress and start a new thread for data receiving.
+	/// If it cannot connect, then the application will try again in five seconds.
+	/// </summary>
 	void Start ()
 	{
 		try {
-			serverAddress = new IPEndPoint (IPAddress.Parse ("127.0.0.1"), 5242);
-			clientSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			ClientSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
 			Thread thread = new Thread(ClientRun);
 			thread.Start();
-			clientSocket.Connect (serverAddress);
+			ClientSocket.Connect (ServerAddress);
 		} catch (Exception e) {
 			Debug.Log (e.Message + "...Will restart in 5 seconds.");
-			restartTime = Time.fixedTime + 5f;
-			restart = true;
-			clientSocket.Close ();
+			RestartTime = Time.fixedTime + 5f;
+			Restart = true;
+			ClientSocket.Close ();
 		}
 	}
 
+	/// <summary>
+	/// Called once per frame. Checks if the connection needs to be restarted.
+	/// </summary>
 	void Update ()
 	{
-		if (restart && Time.fixedTime > restartTime) {
-			restart = false;
+		if (Restart && Time.fixedTime > RestartTime) {
+			Restart = false;
 			Start ();
 		}
 	}
 
+
+	/// <summary>
+	/// Method that loops and is run on a seperate thread.
+	/// Loop is broken if something goes wrong.
+	/// </summary> 
 	void ClientRun()
 	{
 		while (true) {
@@ -49,26 +65,30 @@ public class SocketClient : MonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// Receives the info from the socket server and stores it in a JSONObject for UpdateGame.
+	/// </summary>
+	/// <returns><c>true</c>, if info was received or no messages were ready to be received, <c>false</c> if connection was lost or an error occurred.</returns>
 	Boolean ReceiveInfo ()
 	{
-		if (restart)
+		if (Restart)
 			return false;
 		
 		try {
 			
 			// Test connection
-			if (clientSocket.Poll(1000, SelectMode.SelectRead) && clientSocket.Available == 0)
+			if (ClientSocket.Poll(1000, SelectMode.SelectRead) && ClientSocket.Available == 0)
 			{
 				Debug.Log("Lost connection with the Socket server... Restarting...");
-				restart = true;
-				restartTime = 0f;
+				Restart = true;
+				RestartTime = 0f;
 				return false;
 			}
 
 			// Receiving
 			byte[] rcvLenBytes = new byte[4];
 
-			clientSocket.Receive (rcvLenBytes);
+			ClientSocket.Receive (rcvLenBytes);
 
 			int rcvLen = System.BitConverter.ToInt32 (rcvLenBytes, 0);
 
@@ -79,7 +99,7 @@ public class SocketClient : MonoBehaviour
 			}
 
 			byte[] rcvBytes = new byte[rcvLen];
-			clientSocket.Receive (rcvBytes);
+			ClientSocket.Receive (rcvBytes);
 			String rcv = System.Text.Encoding.ASCII.GetString (rcvBytes);
 
 			JSONObject jsonObject = new JSONObject(rcv);

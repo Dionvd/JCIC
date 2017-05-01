@@ -1,5 +1,6 @@
 package app.dao;
 
+import app.entity.Match;
 import app.entity.Player;
 import java.util.List;
 
@@ -16,4 +17,5 @@ public interface PlayerRepository extends CrudRepository<Player, Long> {
     public List<Player> findByNameIgnoreCase(String name);
 
     public List<Player> findByEmailIgnoreCase(String email);
+    
 }

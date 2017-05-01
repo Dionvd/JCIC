@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author dion
  */
 @RestController
-@RequestMapping(value = "/matches", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/matches", produces = MediaType.APPLICATION_JSON_VALUE)
 public class MatchResource {
 
     @Inject

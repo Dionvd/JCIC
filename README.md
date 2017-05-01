@@ -5,7 +5,7 @@ For more info visit http://joyofcoding.org/
 
 # License
 The JCIC project is made possible by Finalist, and by their choice, this code is completely open-source. 
-Therefor this project uses the Creative Commons (CC0) License. Anyone can view or copy this code for their own purposes and create derivative work for both personal and commercial use. This project uses plugins and libraries from other sources to which this CC0 license does not extend, and these may have their own licenses. 
+Therefore this project uses the Creative Commons (CC0) License. Anyone can view or copy this code for their own purposes and create derivative work for both personal and commercial use. This project uses plugins and libraries from other sources to which this CC0 license does not extend, and these may have their own licenses. 
 By using this source code it is now yours, and we are no longer responsible for what happens with it in any way. 
 Please read the license : https://creativecommons.org/publicdomain/zero/1.0/
 
@@ -18,13 +18,15 @@ Make sure the 8080 port is not in use. This project has been tested on both Wind
 
 JCIC-Visuals is a Unity project. You can open this in Unity, but it will be lacking third party assets. 
 You will need to acquire and import these external assets to get the project to work:
-https://www.assetstore.unity3d.com/en/#!/content/32351
-https://www.assetstore.unity3d.com/en/#!/content/73764
+"Standard Assets" by Unity Technologies
+"Simple Gems Ultimate Animated Customizable Pack" by AurynSky
+"Elenesski Generic Move Camera" by Elenesski
 
-In Unity, importing these assets will create some folders. Move in Unity the following folders in to a folder called "External Assets":
-Gems Ultimate pack
-SampleScenes
-Standard Assets
+In Unity, importing these assets will create some folders. Move the following folders in Unity in to a new folder called "External Assets":
+"Elenesski Generic Move Camera"
+"Gems Ultimate Pack"
+"SampleScenes"
+"Standard Assets"
 
 The assets should then work, you might have to restart the project.
 
@@ -49,13 +51,15 @@ JaCoCo generates a website with all the data on it. You can find the site at tar
 
 
 # Class Structure
-app : Contains application, config and threading classes for running the application.
+app : Contains application and config classes for running the application.
+app.bean : Contains bean classes that run asynchronous to the webservices for sending data to unity or progressing game turns.
+app.rest : Resource/Controller layer with Spring-web, handles incoming REST requests to access game and player data from the outside. 
+app.service : Service layer, contains service logic that validates REST requests.
+app.dao : Data access layer, Spring-data Repository package, used by services to access data.
 app.entity : Entity classes represent the data objects that can be stored by the application or shared by web services.
-app.dao : Data access layer, Spring-data Repository package.
-app.service : Service layer, contains service logic that validates requests.
-app.rest : Resource/Controller layer with Spring-web, handles incoming REST requests to access game data from outside. 
+app.dto : Data transfer objects. Data classes that are not stored in the database.
+app.enums : Enum package, used for common used names among lists.
 app.exception : Custom exceptions with Spring-web annotations that help with better HTTP error handling.
-
 
 # Credits
 Dion van Dam (Finalist Intern) - Software Developing and documentation

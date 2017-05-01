@@ -51,7 +51,7 @@ public class QueueService {
      */
     public int getPositionOfPlayer(long playerId) throws NotFoundException {
 
-        int i = 0;
+        int i = -1;
         
         for (Player p : waitingQueue.getPlayers())
         {
@@ -107,7 +107,7 @@ public class QueueService {
             
             //fill match with players from the Waiting Queue
             while (match.getPlayerCount() < match.getMaxPlayerSize()) {
-                match.getPlayers().add(waitingQueue.getAndRemoveFirst());
+                match.getPlayers().add(waitingQueue.RemoveFirst());
             }
             SocketToUnity.setQueueUpdate(waitingQueue);
 

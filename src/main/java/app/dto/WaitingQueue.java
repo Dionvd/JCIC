@@ -30,7 +30,8 @@ public class WaitingQueue {
      *
      * @return playerId that was removed from the list
      */
-    public Player getAndRemoveFirst() {
+    
+    public Player RemoveFirst() {
         return players.remove(0);
     }
 
