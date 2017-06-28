@@ -2,7 +2,6 @@ package app.dto;
 
 import app.enums.Action;
 import app.enums.MoveDirection;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.awt.Point;
 import java.io.Serializable;
 
@@ -47,7 +46,7 @@ public class Move implements Serializable {
             this.action = action;
         }
         if (direction != null) {
-            this.location = location;
+            this.direction = direction;
         }
     }
 

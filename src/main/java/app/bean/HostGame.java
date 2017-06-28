@@ -1,14 +1,9 @@
 package app.bean;
 
-import app.dao.MatchRepository;
-import app.entity.Match;
-import app.entity.MatchMap;
-import app.entity.Node;
-import app.entity.Player;
-import app.exception.MatchHasEndedException;
-import app.exception.NotFoundException;
-import app.exception.ParameterOutOfBoundsException;
-import app.exception.NotInMatchException;
+import app.bot.*;
+import app.dao.PlayerRepository;
+import app.entity.*;
+import app.exception.*;
 import app.enums.Action;
 import app.dto.Move;
 import app.enums.MoveDirection;
@@ -18,24 +13,29 @@ import java.awt.Point;
 import static java.lang.Thread.sleep;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import app.dao.RoundRepository;
+import app.dao.SettingsRepository;
+import app.rest.SettingsResource;
+import app.ui.TableActiveMatches;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * Responsible for handling game rules logic. Stores MoveLists and activeMatches
+ * Responsible for handling game rules logic. Stores MoveLists and activeRounds
  * and processes them over time.
  *
- * Although Match progress is stored through Repository, it is no longer hosted
- * in case the application stops working (the match is then discontinued). Moves
+ * Although Round progress is stored through Repository, it is no longer hosted
+ * in case the application stops working (the Round is then discontinued). Moves
  * themselves are not stored in a Repository, and are instead stored statically
  * in this class. This means they will be entirely lost if the application
  * stops.
@@ -45,22 +45,31 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class HostGame {
 
-    private static Map<Long, Match> activeMatches = new HashMap<>();
+    private static Map<Long, Round> activeRounds = new HashMap<>();
 
     private static Map<Long, MoveList> playerMoves = new HashMap<>();
 
     @Inject
-    private MatchRepository matchRep;
-
-    private static MatchRepository matchRepository;
-
-    private static boolean stopMatches = false;
+    private PlayerRepository playerRep;
+    private static PlayerRepository playerRepository;
     
+    @Inject
+    private RoundRepository roundRep;
+    private static RoundRepository roundRepository;
+
+    @Inject
+    private SettingsRepository settingsRep;
+    private static SettingsRepository settingsRepository;
+    
+    private static boolean stopRounds = false;
+    private static long stopRoundId = -1;
+
     /**
      * Bean for relaying injected Repository variables. Beans are automatically
      * run when the application is booted. Static injecting a repository does
      * not work. This Bean however, can inject but has no REST session and will
      * therefor be limited in features, such as that lazy loading is not handled
+     *
      * and instead throws org.hibernate.LazyInitializationException.
      *
      * Warning : Bean might not fire if method name is not unique across all
@@ -73,7 +82,10 @@ public class HostGame {
     public CommandLineRunner hostGameStaticInjects() {
 
         return (args) -> {
-            matchRepository = matchRep;
+            roundRepository = roundRep;
+            playerRepository = playerRep;
+            settingsRepository = settingsRep;
+            
         };
 
     }
@@ -87,313 +99,258 @@ public class HostGame {
     public static void run() {
         while (true) {
             try {
-                sleep(500);
                 
-                //Init
-                MoveDirection[] moveDirections = MoveDirection.values();
+                //Not enough rounds being played?
+                if (activeRounds.isEmpty())
+                {
+                    Settings settings = settingsRepository.findOne(1L);
+                    Round round = new Round(settings);
+                    roundRepository.save(round);
+                    RoundMap map = new RoundMap(new Point(10, 10), round.getId());
+                    round.setMap(map);
+                    
+                    round.getPlayerIds().add(1L);                 
+                    round.getPlayerIds().add(2L);
+                    roundRepository.save(round);                    
+                  
 
-                //For every match, perform a turn
-                for (Match activeMatch : activeMatches.values()) {
+                    activeRounds.put(round.getId(), round);
+                    Log.write("Game " + round.getId() + " initiated due to lack of active matches.");
+                }
+                
+                sleep(500);
 
-                    MatchMap map = activeMatch.getMap();
-                    List<Node> nodes = map.getNodes();
-                    Map<Action, Integer> actionCosts = activeMatch.getGameRules().getActionCosts();
-                    int mapWidth = map.getWidth();
+                //For every round, perform a turn
+                for (Round activeRound : activeRounds.values()) {
+
+                    
+                    //Internal bots calculate and send in their moves
+                    calculateBotMoves(activeRound);
+
+                    //Perform all sent moves
+                    performMoves(activeRound);
 
                     //Every owned node gains power
-                    nodes.forEach(node -> {
-                        if (node.getOwnerId() != 0) {
-                            node.adjustPower(1);
-                        }
-                    });
-
-                    //Perform all moves
-                    for (Player player : activeMatch.getPlayers()) {
-                        MoveList moves = playerMoves.get(player.getId());
-                        if (moves == null) {
-                            continue;
-                        }
-
-                        for (Move move : moves.getMoves()) {
-                            Action action = Action.values()[move.getAction()];
-                            MoveDirection direction = MoveDirection.values()[move.getDirection()];
-                            Point location = new Point(move.getX(), move.getY());
-                            Point location2 = direction.getLocation(location);
-
-                            Node node = nodes.get(location.x + location.y * mapWidth);
-                            Node node2 = nodes.get(location2.x + location2.y * mapWidth);
-
-                            //remove cost
-                            node.adjustPower(-actionCosts.get(action));
-
-                            //perform action
-                            switch (action) {
-                                case SLEEP:
-                                    break;
-                                case SPREAD: {
-                                    if (node2 != node && node2.getOwnerId() != player.getId()) {
-                                        //spread if not from a player, otherwise destroy it.
-                                        if (node2.getOwnerId() == 0) {
-                                            node2.setOwnerId(player.getId());
-                                        } else {
-                                            node2.setOwnerId(0);
-                                            node2.setPower(0);
-                                            node2.setType(0);
-                                        }
-                                    } else {   //revert cost
-                                        node.adjustPower(actionCosts.get(action));
-                                    }
-                                    break;
-                                }
-                                case SPREADALL: {
-                                    for (MoveDirection moveDirection : moveDirections) {
-                                        Point spreadPoint = moveDirection.getLocation(location);
-                                        node2 = nodes.get(spreadPoint.x + spreadPoint.y * mapWidth);
-                                        if (node2 != node && node2.getOwnerId() != player.getId()) {
-                                            //spread if not from a player, otherwise destroy it.
-                                            if (node2.getOwnerId() == 0) {
-                                                node2.setOwnerId(player.getId());
-                                            } else {
-                                                node2.setOwnerId(0);
-                                                node2.setPower(0);
-                                                node2.setType(0);
-                                            }
-                                        }
-                                    }
-
-                                    break;
-                                }
-                                case SPREADLINE: {
-                                    Point location3 = direction.getLocation(location2);
-                                    Point location4 = direction.getLocation(location3);
-                                    Point location5 = direction.getLocation(location4);
-                                    Point location6 = direction.getLocation(location4);
-
-                                    Node node3 = nodes.get(location3.x + location3.y * mapWidth);
-                                    Node node4 = nodes.get(location4.x + location4.y * mapWidth);
-                                    Node node5 = nodes.get(location5.x + location5.y * mapWidth);
-                                    Node node6 = nodes.get(location6.x + location6.y * mapWidth);
-
-                                    node2.setOwnerId(player.getId());
-                                    node3.setOwnerId(player.getId());
-                                    node4.setOwnerId(player.getId());
-                                    node5.setOwnerId(player.getId());
-                                    node6.setOwnerId(player.getId());
-                                    break;
-                                }
-                                case EMPOWER: {
-                                    Node lowestNode = node2;
-
-                                    for (int i = 0; i < moveDirections.length; i++) {
-                                        Point spreadPoint = moveDirections[i].getLocation(location);
-                                        node2 = nodes.get(spreadPoint.x + spreadPoint.y * mapWidth);
-                                        if (node2.getOwnerId() == player.getId() && node2.getPower() < lowestNode.getPower()) {
-                                            lowestNode = node2;
-                                        }
-                                    }
-                                    lowestNode.adjustPower(5);
-
-                                    break;
-                                }
-                                case DISCHARGE: {
-                                    //TODO SELL SPECIAL TYPE
-
-                                    int remainingPower = node.getPower();
-                                    List<Node> friendlyAdjNodes = new ArrayList<>();
-
-                                    for (MoveDirection moveDirection : moveDirections) {
-                                        Point adjacentPoint = moveDirection.getLocation(location);
-                                        node2 = nodes.get(adjacentPoint.x + adjacentPoint.y * mapWidth);
-                                        if (node2.getOwnerId() == player.getId()) {
-                                            friendlyAdjNodes.add(node2);
-                                        }
-                                    }
-
-                                    remainingPower = remainingPower / friendlyAdjNodes.size();
-                                    node.setPower(0);
-                                    for (Node friendlyAdjNode : friendlyAdjNodes) {
-                                        friendlyAdjNode.adjustPower(remainingPower);
-                                    }
-
-                                    break;
-                                }
-                                case POWERLINE:
-                                    
-                                    
-                                    break;
-                                case OVERCLOCK:
-                                    break;
-                                case GUARD:
-                                    break;
-                                case STORAGE:
-                                    break;
-                                case DRAIN: {
-
-                                    Node highestNode = null;
-
-                                    for (MoveDirection moveDirection : moveDirections) {
-                                        Point adjacentPoint = moveDirection.getLocation(location);
-                                        node2 = nodes.get(adjacentPoint.x + adjacentPoint.y * mapWidth);
-                                        if (node2.getOwnerId() != 0 && node2.getOwnerId() != player.getId()) {
-                                            if (highestNode == null || node2.getPower() > highestNode.getPower()) {
-                                                highestNode = node2;
-                                            }
-                                        }
-                                    }
-
-                                    Node max = Arrays.asList(moveDirections).stream()
-                                            .map(moveDirection -> {
-                                                Point adjacentPoint = moveDirection.getLocation(location);
-                                                return nodes.get(adjacentPoint.x + adjacentPoint.y * mapWidth);
-                                            })
-                                            .filter(adjacentNode -> adjacentNode != null)
-                                            .filter(adjacentNode -> adjacentNode.getOwnerId() != 0)
-                                            .filter(adjacentNode -> adjacentNode.getOwnerId() != player.getId())
-                                            .max((n1, n2) -> n1.getPower() - n2.getPower())
-                                            .get();
-
-                                    if (highestNode != null) {
-                                        highestNode.adjustPower(-5);
-                                    } else {   //revert cost
-                                        node.adjustPower(actionCosts.get(action));
-                                    }
-                                    break;
-                                }
-                                case EXPLODE:
-                                {
-                                    for (int ix = -2; ix <= 2; ix++) {
-                                        for (int iy = -2; iy <= 2; iy++) {
-                                            
-                                            int newX = location.x + ix;
-                                            int newY = location.y + iy;
-                                            
-                                            if (ix * iy == -4 || ix * iy == 4)
-                                            {
-                                                //skip corners
-                                                continue;
-                                            }
-                                            
-                                            if (location.y % 2 == 0)
-                                            {
-                                                // . - O + .
-                                                //  - - O + .
-                                                // - - i + +
-                                                //  - - O + .
-                                                // . - O + .
-                                                if ((iy == -1 || iy == 1) && ix == 2)
-                                                {
-                                                    //not part of circle
-                                                    continue;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                // . - O + .
-                                                //. - O + +
-                                                // - - i + +
-                                                //. - O + +
-                                                // . - O + .
-                                                if ((iy == -1 || iy == 1) && ix == -2)
-                                                {
-                                                    //not part of circle
-                                                    continue;
-                                                }
-                                            }
-                                                
-                                            Node explodingNode = nodes.get(newX + newY * mapWidth);
-                                            explodingNode.setPower(0);
-                                            explodingNode.setOwnerId(0);
-                                        }
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-
-                    }
+                    performPowerIncrease(activeRound);
 
                     //NEW TURN
-                    activeMatch.setTurn(activeMatch.getTurn() + 1);
-                    
-                    //Log.write("Game " + activeMatch.getId() + " Turn " + activeMatch.getTurn());
+                    activeRound.setTurn(activeRound.getTurn() + 1);
 
-                    //Store match
-                    matchRepository.save(activeMatch);
+                    //Log.write("Game " + activeRound.getId() + " Turn " + activeRound.getTurn());
+                    //Store round
+                    roundRepository.save(activeRound);
 
                     //SEND TURN TO UNITY
                     SocketToUnity.setTurnMoves(playerMoves);
 
                     //RESET MOVE LIST
-                    for (Player player : activeMatch.getPlayers()) {
-                        playerMoves.put(player.getId(), null);
+                    for (Long l : activeRound.getPlayerIds()) {
+                        playerMoves.put(l, null);
                     }
 
-                 
+                    
                 }
-                
+
                 //RESET DATA?
-                if (stopMatches)
+                if (stopRoundId != -1)
                 {
-                    activeMatches.clear();
+                    activeRounds.remove(stopRoundId);
+                    stopRoundId = -1;
+                }
+                if (stopRounds) {
+                    activeRounds.clear();
                     playerMoves.clear();
                     AdminPanelHandler.READY_TO_CLEAR_GAME_DATA = true;
-                    stopMatches = false;
-                }  
+                    stopRounds = false;
+                }
+
+                //update adminpanel
+                TableActiveMatches.update(activeRounds.values());
 
             } catch (InterruptedException ex) {
                 Logger.getLogger(HostGame.class.getName()).log(Level.SEVERE, null, ex);
                 Log.write(ex.getMessage());
             }
         }
-        
+
     }
 
     /**
-     * Stores a new Match. Called by WaitingQueue web service when someone joins
+     * Finds internal bots within rounds and tells them to send in their moves.
+     *
+     * @param activeRound
+     */
+    static void calculateBotMoves(Round activeRound) {
+        activeRound.getPlayerIds().stream()
+                .filter((playerId) -> (playerId <= 6))
+                .forEachOrdered((bot) -> {
+                    int i = bot.intValue();
+                    MoveList moves = null;
+                    
+                    switch (i)
+                    {
+                        case 1: 
+                            moves = GuardianBot.calculateMoves(activeRound.getMap());
+                            break;
+                        case 2: 
+                            moves = AssaultBot.calculateMoves(activeRound.getMap());
+                            break;
+                        case 3: 
+                            moves = PowerBot.calculateMoves(activeRound.getMap());
+                            break;
+                        case 4: 
+                            moves = TacticalBot.calculateMoves(activeRound.getMap());
+                            break;
+                        case 5: 
+                            moves = FrontierBot.calculateMoves(activeRound.getMap());
+                            break;
+                        case 6: 
+                            moves = PlanningBot.calculateMoves(activeRound.getMap());
+                            break;
+                    }
+                    playerMoves.put(bot, moves); });
+    }
+
+    /**
+     * Performs all actions that are stored for the given round
+     *
+     * @param activeRound
+     */
+    static void performMoves(Round activeRound) {
+        RoundMap map = activeRound.getMap();
+        List<Node> nodes = map.getNodes();
+        Map<Action, Integer> actionCosts = activeRound.getGameRules().getActionCosts();
+        int mapWidth = map.getWidth();
+
+        //Perform all moves
+        for (Long playerId : activeRound.getPlayerIds()) {
+            MoveList moves = playerMoves.get(playerId);
+            if (moves == null) {
+                continue;
+            }
+
+            
+            for (Move move : new ArrayList<>(moves.getMoves())) {
+
+                Action action = Action.values()[move.getAction()];
+                Node node = nodes.get(move.getX() + move.getY() * mapWidth);
+
+                //remove cost
+                node.adjustPower(-actionCosts.get(action));
+
+                boolean status = false;
+                
+                //perform action
+                switch (action) {
+                    case SLEEP:
+                        break;
+                    case SPREAD:
+                        status = actionSpread(playerId, nodes, node, move, actionCosts.get(action), mapWidth);
+                        break;
+                    case SPREADALL:
+                        status = actionSpreadAll(playerId, nodes, node, move, actionCosts.get(action), mapWidth);
+                        break;
+                    case SPREADLINE:
+                        status = actionSpreadLine(playerId, nodes, node, move, actionCosts.get(action), mapWidth);
+                        break;
+                    case EMPOWER:
+                        status = actionEmpower(playerId, nodes, node, move, actionCosts.get(action), mapWidth);
+                        break;
+                    case DISCHARGE:
+                        status = actionDischarge(playerId, nodes, node, move, actionCosts.get(action), mapWidth);
+                        break;
+                    case POWERLINE:
+                        status = actionPowerline(playerId, node, move, actionCosts.get(action));
+                        break;
+                    case OVERCLOCK:
+                        status = actionOverclock(playerId, node, move, actionCosts.get(action));
+                        break;
+                    case GUARD:
+                        status = actionGuard(playerId, node, move, actionCosts.get(action));
+                        break;
+                    case STORAGE:
+                        status = actionStorage(playerId, node, move, actionCosts.get(action));
+                        break;
+                    case DRAIN:
+                        status = actionDrain(playerId, nodes, node, move, actionCosts.get(action), mapWidth);
+                        break;
+                    case EXPLODE:
+                        status = actionExplode(playerId, nodes, node, move, actionCosts.get(action), mapWidth);
+                        break;
+                }
+                
+                if (status == false) //action did not go through
+                {
+                    node.adjustPower(actionCosts.get(action));
+                    moves.getMoves().remove(move);
+                }
+            }
+
+        }
+    }
+
+    
+    /**
+     * Increases the power of all owned nodes.
+     * @param activeRound 
+     */
+    static void performPowerIncrease(Round activeRound) {
+        activeRound.getMap().getNodes().forEach(node -> {
+            if (node.getOwnerId() != 0) {
+                if (node.getType() == 2)
+                    node.adjustPower(3);
+                else
+                    node.adjustPower(1);
+            }
+        });
+    }
+
+    /**
+     * Stores a new Round. Called by WaitingQueue web service when someone joins
      * the waiting queue and there is room to host another game. Once a game is
      * stored, it will start playing immediately.
      *
-     * @param match
+     * @param round
      */
-    public static void storeMatch(Match match) {
-        activeMatches.put(match.getId(), match);
+    public static void storeRound(Round round) {
+        activeRounds.put(round.getId(), round);
     }
 
     /**
-     * Stores a MoveList for a specific Match and Player. Called by Match web
+     * Stores a MoveList for a specific Round and Player. Called by Round web
      * service when someone posts the moves they want to perform. Only one
      * MoveList is stored per Player, that is, newly posted MoveLists override
      * any MoveLists for the same turn.
      *
-     * @param matchId
+     * @param roundId
      * @param playerId
      * @param moves
-     * @throws NotInMatchException
+     * @throws NotInRoundException
      * @throws ParameterOutOfBoundsException
      * @throws NotFoundException
      */
-    public static void storeMoves(long matchId, long playerId, MoveList moves) throws NotInMatchException, ParameterOutOfBoundsException, NotFoundException, MatchHasEndedException {
-        Match match = activeMatches.get(matchId);
+    public static void storeMoves(long roundId, long playerId, MoveList moves) throws NotInRoundException, ParameterOutOfBoundsException, NotFoundException, RoundHasEndedException {
+        Round round = activeRounds.get(roundId);
 
-        if (match == null) {
+        if (round == null) {
             throw new NotFoundException();
         }
 
-        if (match.isEnded()) {
-            throw new MatchHasEndedException();
+        if (round.isEnded()) {
+            throw new RoundHasEndedException();
         }
 
-        Player player = match.getPlayer(playerId);
+        Player player = round.getPlayer(playerId);
 
         if (player == null) {
-            throw new NotInMatchException();
+            throw new NotInRoundException();
         }
 
-        //Player found in match, remove invalid moves
-        MatchMap map = match.getMap();
+        //Player found in round, remove invalid moves
+        RoundMap map = round.getMap();
         int width = map.getWidth();
         int height = map.getHeight();
-        Map<Action, Integer> actionCosts = match.getGameRules().getActionCosts();
+        Map<Action, Integer> actionCosts = round.getGameRules().getActionCosts();
 
         for (int i = 0; i < moves.getMoves().size(); i++) {
             Move move = moves.getMove(i);
@@ -427,8 +384,227 @@ public class HostGame {
         }
     }
 
-    public static void stopMatches()
-    {
-        stopMatches = true;
+    public static void stopRounds() {
+        stopRounds = true;
     }
+    
+    public static void stopRound(int roundIndex)
+    {
+        if (roundIndex == -1) return;
+        Round round = new ArrayList<>(activeRounds.values()).get(roundIndex);
+        stopRoundId = round.getId();
+    }
+
+    public static boolean actionSpread(Long playerId, List<Node> nodes, Node node, Move move, int actionCost, int mapWidth) {
+        MoveDirection direction = MoveDirection.values()[move.getDirection()];
+        
+        Point location = new Point(move.getX(), move.getY());
+        Point location2 = direction.getLocation(location);
+        Node node2 = nodes.get(location2.x + location2.y * mapWidth);
+
+        return node2.attackedBy(playerId);
+    }
+
+    public static boolean actionSpreadAll(Long playerId, List<Node> nodes, Node node, Move move, int actionCost, int mapWidth) {
+        Point location = new Point(move.getX(), move.getY());
+        Node node2;
+
+        boolean didSomething = false;
+        
+        for (MoveDirection moveDirection : MoveDirection.values()) {
+            Point spreadPoint = moveDirection.getLocation(location);
+            int mapHeight = nodes.size()/mapWidth;
+            node2 = nodes.get(spreadPoint.x + spreadPoint.y * mapWidth);
+            Point location2 = moveDirection.getLocation(location);
+            if (location2.x < 0 || location2.y < 0 || location2.x >= mapWidth || location2.y >= mapHeight)
+                continue;
+            node2 = nodes.get(location2.x + location2.y * mapWidth);
+            if (node2 != node) {
+                if (node2.attackedBy(playerId))
+                    didSomething = true;
+                
+            }
+        }
+        
+        return didSomething;
+    }
+
+    public static boolean actionSpreadLine(Long playerId, List<Node> nodes, Node node, Move move, int actionCost, int mapWidth) {
+
+        MoveDirection direction = MoveDirection.values()[move.getDirection()];
+        Point location = new Point(move.getX(), move.getY());
+        int mapHeight = nodes.size()/mapWidth;
+        List<Point> locations = new ArrayList<>();
+        Point location2 = location;
+
+        boolean didSomething = false;
+        
+        for (int i = 0; i < 5; i++) {
+            location2 = direction.getLocation(location2);
+            if (location2.x < 0 || location2.y < 0 || location2.x >= mapWidth || location2.y >= mapHeight)
+                continue;
+            Node node2 = nodes.get(location2.x + location2.y * mapWidth);
+            if (node2.attackedBy(playerId))
+                didSomething = true;
+        }
+
+        return didSomething;
+    }
+
+    public static boolean actionEmpower(Long playerId, List<Node> nodes, Node node, Move move, int actionCost, int mapWidth) {
+        MoveDirection direction = MoveDirection.values()[move.getDirection()];
+        Point location = new Point(move.getX(), move.getY());
+        Node node2;
+        Node lowestNode = null;
+        int dir = -1;
+        
+        for (int i = 1; i < MoveDirection.values().length; i++) {
+            Point spreadPoint = MoveDirection.values()[i].getLocation(location);
+            
+            if (spreadPoint.x < 0 || spreadPoint.y < 0 || spreadPoint.x >= mapWidth || spreadPoint.y >= nodes.size()/mapWidth)
+                continue;
+            
+            node2 = nodes.get(spreadPoint.x + spreadPoint.y * mapWidth);
+            if (node2.getOwnerId() == playerId && (lowestNode == null || node2.getPower() < lowestNode.getPower())) {
+                lowestNode = node2;
+                dir = i;
+            }
+        }
+        //no other friendly nodes found
+        if (lowestNode == null) return false;
+        
+        lowestNode.adjustPower(5);
+        move.setDirection(dir);
+        return true;
+    }
+
+    public static boolean actionDischarge(Long playerId, List<Node> nodes, Node node, Move move, int actionCost, int mapWidth) {
+        //TODO SELL SPECIAL TYPE
+        MoveDirection direction = MoveDirection.values()[move.getDirection()];
+        Point location = new Point(move.getX(), move.getY());
+        Node node2;
+
+        int remainingPower = node.getPower();
+        List<Node> friendlyAdjNodes = new ArrayList<>();
+
+        for (MoveDirection moveDirection : MoveDirection.values()) {
+            Point adjacentPoint = moveDirection.getLocation(location);
+            node2 = nodes.get(adjacentPoint.x + adjacentPoint.y * mapWidth);
+            if (node2.getOwnerId() == playerId) {
+                friendlyAdjNodes.add(node2);
+            }
+        }
+
+        remainingPower = remainingPower / friendlyAdjNodes.size();
+        node.setPower(0);
+        for (Node friendlyAdjNode : friendlyAdjNodes) {
+            friendlyAdjNode.adjustPower(remainingPower);
+        }
+        
+        return true;
+    }
+
+    public static boolean actionPowerline(Long playerId, Node node, Move move, int actionCost) {
+        node.setType(1);
+        return true;
+    }
+
+    public static boolean actionOverclock(Long playerId, Node node, Move move, int actionCost) {
+        node.setType(2);
+        return true;
+    }
+
+    public static boolean actionGuard(Long playerId, Node node, Move move, int actionCost) {
+        node.setType(3);
+        return true;
+    }
+
+    public static boolean actionStorage(Long playerId, Node node, Move move, int actionCost) {
+        node.setType(4);
+        return true;
+    }
+
+    public static boolean actionDrain(Long playerId, List<Node> nodes, Node node, Move move, int actionCost, int mapWidth) {
+        Node highestNode;
+        Point location = new Point(move.getX(), move.getY());
+        int mapHeight = nodes.size()/mapWidth;
+
+
+        List<Node> collectedList = Arrays.asList(MoveDirection.values()).stream().map(moveDirection -> {
+            Point adjacentPoint = moveDirection.getLocation(location);
+            if (adjacentPoint.x > -1 && adjacentPoint.y > -1 && adjacentPoint.x < mapWidth && adjacentPoint.y < mapHeight)
+                return nodes.get(adjacentPoint.x + adjacentPoint.y * mapWidth);
+            else
+                return null;
+        }).collect(Collectors.toList());
+        
+        
+        Optional<Node> max = collectedList.stream()
+                .filter(adjacentNode -> adjacentNode != null)
+                .filter(adjacentNode -> adjacentNode.getOwnerId() != 0)
+                .filter(adjacentNode -> adjacentNode.getOwnerId() != playerId)
+                .filter(adjacentNode -> adjacentNode.getPower() >= 5)
+                .max((n1, n2) -> n1.getPower() - n2.getPower());
+
+        if (max.isPresent())
+        {
+            highestNode = max.get();
+            highestNode.adjustPower(-5);
+            
+            move.setDirection(collectedList.indexOf(highestNode));
+            
+            return true;
+        }
+         
+        return false;
+    }
+
+    public static boolean actionExplode(Long playerId, List<Node> nodes, Node node, Move move, int actionCost, int mapWidth) {
+        Point location = new Point(move.getX(), move.getY());
+
+        for (int ix = -2; ix <= 2; ix++) {
+            for (int iy = -2; iy <= 2; iy++) {
+
+                int newX = location.x + ix;
+                int newY = location.y + iy;
+
+                if (ix * iy == -4 || ix * iy == 4) {
+                    //skip corners
+                    continue;
+                }
+
+                if (location.y % 2 == 0) {
+                    // . - O + .
+                    //  - - O + .
+                    // - - i + +
+                    //  - - O + .
+                    // . - O + .
+                    if ((iy == -1 || iy == 1) && ix == 2) {
+                        //not part of circle
+                        continue;
+                    }
+                } else {
+                    // . - O + .
+                    //. - O + +
+                    // - - i + +
+                    //. - O + +
+                    // . - O + .
+                    if ((iy == -1 || iy == 1) && ix == -2) {
+                        //not part of circle
+                        continue;
+                    }
+                }
+
+                Node explodingNode = nodes.get(newX + newY * mapWidth);
+                explodingNode.setPower(0);
+                explodingNode.setOwnerId(0);
+                if (explodingNode.getType() != -1)
+                    explodingNode.setType(0);
+            }
+        }
+        
+        return true;    
+
+    }
+
 }

@@ -4,14 +4,17 @@ package app.entity;
 import app.dto.RegisterCredentials;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 
 /**
  * Contains all account and player data of one person. Referenced
- * by its id in the Match, WaitingQueue and Node classes. Stored as a list in
+ * by its id in the Round, WaitingQueue and Node classes. Stored as a list in
  * Main.
  *
  * @author dion
@@ -35,7 +38,7 @@ public class Player implements Serializable {
     private String password;
 
     @JsonIgnore
-    private String sessionId = "";
+    private String token = "";
 
     private int winCount;
 
@@ -47,6 +50,8 @@ public class Player implements Serializable {
     @JsonIgnore
     private int failedLoginCount;
 
+    //private List<Long> defeatedPlayers;
+    
     /**
      * Entity constructor. Do not use.
      */
@@ -120,12 +125,12 @@ public class Player implements Serializable {
         this.password = password;
     }
 
-    public String getSessionId() {
-        return sessionId;
+    public String getToken() {
+        return token;
     }
 
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public int getWinCount() {

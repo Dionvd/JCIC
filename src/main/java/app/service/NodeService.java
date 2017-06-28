@@ -20,8 +20,8 @@ public class NodeService {
     @Inject
     NodeRepository nodeRep;
 
-    public Node getNode(Long matchId, int x, int y) throws NotFoundException {
-        return Validate.notNull(nodeRep.findOne(Node.calcKey(matchId, new Point(x,y))));
+    public Node getNode(Long roundId, int x, int y) throws NotFoundException {
+        return Validate.notNull(nodeRep.findOne(Node.calcKey(roundId, new Point(x,y))));
     }
 
     public Node getNode(Long nodeId) throws NotFoundException {

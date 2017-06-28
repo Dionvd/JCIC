@@ -5,7 +5,6 @@
  */
 package app.bean;
 
-import app.dao.MatchRepository;
 import app.dao.NodeRepository;
 import app.dao.PlayerRepository;
 import app.dao.SettingsRepository;
@@ -17,6 +16,13 @@ import javax.inject.Inject;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import app.dao.RoundRepository;
+import app.dto.RegisterCredentials;
+import app.entity.Player;
+import app.entity.Round;
+import app.entity.RoundMap;
+import app.ui.TableActiveMatches;
+import java.awt.Point;
 
 /**
  *
@@ -28,12 +34,14 @@ public class AdminPanelHandler {
     public static boolean RESET_ALL_GAME_DATA = false;
     public static boolean READY_TO_CLEAR_GAME_DATA = false;
     public static boolean SAVE_NEW_SETTINGS = false;
-    public static boolean STOP_ALL_MATCHES = false;
+    public static boolean STOP_ALL_ROUNDS = false;
+    public static boolean STOP_SELECTED_ROUND = false;
     public static Settings SETTINGS_TO_BE_SET;
+    public static boolean ADD_MOCKED_ROUND = false;
 
     @Inject
-    private MatchRepository matchRep;
-    private static MatchRepository matchRepository;
+    private RoundRepository roundRep;
+    private static RoundRepository roundRepository;
 
     @Inject
     private PlayerRepository playerRep;
@@ -54,7 +62,7 @@ public class AdminPanelHandler {
             settingsRepository = settingsRep;
             nodeRepository = nodeRep;
             playerRepository = playerRep;
-            matchRepository = matchRep;
+            roundRepository = roundRep;
         };
 
     }
@@ -65,20 +73,20 @@ public class AdminPanelHandler {
             public void run() {
                 while (true) {
                     
-                    if (STOP_ALL_MATCHES)
+                    if (STOP_ALL_ROUNDS)
                     {
-                        HostGame.stopMatches();
-                        STOP_ALL_MATCHES = false;
-                        Log.write("--ALL CURRENT MATCHES STOPPED!");
+                        HostGame.stopRounds();
+                        STOP_ALL_ROUNDS = false;
+                        Log.write("--ALL CURRENT ROUNDS STOPPED!");
                     }
                     
                     
                     if (RESET_ALL_GAME_DATA) {
                      
-                        HostGame.stopMatches();
+                        HostGame.stopRounds();
 
                         while (!READY_TO_CLEAR_GAME_DATA) { }
-                        matchRepository.deleteAll();
+                        roundRepository.deleteAll();
                         playerRepository.deleteAll();
                         nodeRepository.deleteAll();
                         settingsRepository.deleteAll();
@@ -98,6 +106,25 @@ public class AdminPanelHandler {
                         Log.write("--NEW SETTINGS SAVED!");
                     }
 
+                    if (ADD_MOCKED_ROUND)
+                    {
+                        long i = roundRepository.count();
+                        
+                        Round round = new Round(new Settings());
+                        round.setMap(new RoundMap(new Point(10, 10), round.getId()));
+                        round.setId(i+1);
+                        HostGame.storeRound(round);
+                        roundRepository.save(round);
+                        ADD_MOCKED_ROUND = false;
+                    }
+                    
+                    if (STOP_SELECTED_ROUND)
+                    {
+                        int selected = TableActiveMatches.self.getSelectedRow();
+                        HostGame.stopRound(selected);
+                        STOP_SELECTED_ROUND = false;
+                    }
+                    
                     try {
                         Thread.sleep(300);
                     } catch (InterruptedException ex) {

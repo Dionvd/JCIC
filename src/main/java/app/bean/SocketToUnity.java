@@ -1,11 +1,10 @@
 //http://stackoverflow.com/questions/14824491/can-i-communicate-between-java-and-c-sharp-using-just-sockets
 package app.bean;
 
-import app.dao.MatchRepository;
 import app.dao.NodeRepository;
 import app.dao.PlayerRepository;
-import app.entity.Match;
-import app.entity.MatchMap;
+import app.entity.Round;
+import app.entity.RoundMap;
 import app.entity.Node;
 import app.enums.Action;
 import app.dto.Move;
@@ -33,6 +32,9 @@ import org.json.JSONObject;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import app.dao.RoundRepository;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Hosts a socket server for sending information about the game to Unity3D.
@@ -52,8 +54,8 @@ public class SocketToUnity {
     private static final List<Player> waitingQueueToSend = new ArrayList<>();
     
     @Inject
-    private MatchRepository matchRep;
-    private static MatchRepository matchRepository;
+    private RoundRepository roundRep;
+    private static RoundRepository roundRepository;
     
     @Inject
     private NodeRepository nodeRep;
@@ -67,7 +69,7 @@ public class SocketToUnity {
     public CommandLineRunner socketStaticInjects() {
         
         return (args) -> { 
-            matchRepository = matchRep;
+            roundRepository = roundRep;
             nodeRepository = nodeRep;
             playerRepository = playerRep;
         };
@@ -94,7 +96,7 @@ public class SocketToUnity {
                     Log.write("Client connected...");
                     
                     
-                    boolean success = send(getMatch());
+                    boolean success = send(getRound());
                     if (success == false) return;
                     
                     success = send(getQueue());
@@ -181,28 +183,26 @@ public class SocketToUnity {
     }
 
     /**
-     * Gets the requested match out of the database. Because there is no spring
+     * Gets the requested round out of the database. Because there is no spring
      * data session the lazy-load does not work and required values have to be
      * manually loaded and attached.
      * 
      * @return
      */
-    public static Match getMatch() {
+    public static Round getRound() {
         try {
-        Match match = matchRepository.findOne(1L);
-        MatchMap map = match.getMap();
+        Round round = roundRepository.findOne(1L);
+        RoundMap map = round.getMap();
         
         Iterable<Node> foundNodes = nodeRepository.findAll();
         ArrayList<Node> nodes = new ArrayList<>();
         foundNodes.forEach(nodes::add);
         map.setNodes(nodes);
         
-        Iterable<Player> foundPlayers = matchRepository.findPlayersByMatchId(match.getId()).get();
-        ArrayList<Player> players = new ArrayList<>();
-        foundPlayers.forEach(players::add);
-        match.setPlayers(players);
+        Set<Long> foundPlayers = round.getPlayerIds();
+        round.setPlayerIds(foundPlayers);
         
-        return match;
+        return round;
         
         }
         catch (Exception e) { return null; }

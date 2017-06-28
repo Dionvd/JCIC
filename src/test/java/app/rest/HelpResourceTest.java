@@ -4,13 +4,13 @@ import app.entity.Starterpack;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.mockito.InjectMocks;
-import static org.mockito.Mockito.when;
-import org.mockito.Mock;
 import app.service.HelpService;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import static org.mockito.Mockito.when;
+import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -36,7 +36,7 @@ public class HelpResourceTest {
     public void init() throws Exception {
 
         List<Starterpack> starterpackList = new ArrayList<>();
-        starterpack = new Starterpack("", TEST_LANGUAGE, "");
+        starterpack = new Starterpack("", TEST_LANGUAGE, "", "");
         starterpackList.add(starterpack);
         starterpacks = starterpackList;
     }

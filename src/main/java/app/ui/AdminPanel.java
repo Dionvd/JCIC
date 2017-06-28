@@ -44,12 +44,12 @@ public class AdminPanel extends javax.swing.JFrame {
     private void initComponents() {
 
         ClearAllDataButton = new javax.swing.JButton();
-        addMockedMatchButton = new javax.swing.JButton();
+        addMockedRoundButton = new javax.swing.JButton();
         setTurnDurationButton = new javax.swing.JButton();
         jSlider1 = new javax.swing.JSlider();
         jLabel1 = new javax.swing.JLabel();
         jLabelTitle = new javax.swing.JLabel();
-        stopAllCurrentMatchesButton = new javax.swing.JButton();
+        stopAllCurrentRoundsButton = new javax.swing.JButton();
         jSlider2 = new javax.swing.JSlider();
         jLabel2 = new javax.swing.JLabel();
         setMaxQueueTimeButton = new javax.swing.JButton();
@@ -59,6 +59,9 @@ public class AdminPanel extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
         jScrollPane3 = new javax.swing.JScrollPane();
         log1 = new app.ui.Log();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tableActiveMatches1 = new app.ui.TableActiveMatches();
+        stopSelectedRoundButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setForeground(java.awt.Color.white);
@@ -70,7 +73,12 @@ public class AdminPanel extends javax.swing.JFrame {
             }
         });
 
-        addMockedMatchButton.setText("Add a mocked match");
+        addMockedRoundButton.setText("Add a mocked round");
+        addMockedRoundButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addMockedRoundButtonActionPerformed(evt);
+            }
+        });
 
         setTurnDurationButton.setText("Set turn duration");
 
@@ -96,10 +104,10 @@ public class AdminPanel extends javax.swing.JFrame {
         jLabelTitle.setFont(new java.awt.Font("Lucida Grande", 0, 24)); // NOI18N
         jLabelTitle.setText("JCIC - Admin panel");
 
-        stopAllCurrentMatchesButton.setText("Stop all currently played matches");
-        stopAllCurrentMatchesButton.addActionListener(new java.awt.event.ActionListener() {
+        stopAllCurrentRoundsButton.setText("Stop all currently played rounds");
+        stopAllCurrentRoundsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stopAllCurrentMatchesButtonActionPerformed(evt);
+                stopAllCurrentRoundsButtonActionPerformed(evt);
             }
         });
 
@@ -171,9 +179,37 @@ public class AdminPanel extends javax.swing.JFrame {
         log1.setEditable(false);
         log1.setColumns(20);
         log1.setRows(5);
-        log1.setText("--LOADED ADMIN PANEL\n--BOOTING WEBSERVICE");
+        log1.setText("--LOADED ADMIN PANEL\n--BOOTING WEBSERVICE AND CONNECTING TO DATABASE");
         log1.setFont(new java.awt.Font("PT Mono", 0, 12)); // NOI18N
         jScrollPane3.setViewportView(log1);
+
+        tableActiveMatches1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Round", "Turn", "Players"
+            }
+        ));
+        jScrollPane2.setViewportView(tableActiveMatches1);
+        if (tableActiveMatches1.getColumnModel().getColumnCount() > 0) {
+            tableActiveMatches1.getColumnModel().getColumn(0).setMinWidth(70);
+            tableActiveMatches1.getColumnModel().getColumn(0).setPreferredWidth(70);
+            tableActiveMatches1.getColumnModel().getColumn(0).setMaxWidth(110);
+            tableActiveMatches1.getColumnModel().getColumn(1).setMinWidth(40);
+            tableActiveMatches1.getColumnModel().getColumn(1).setPreferredWidth(40);
+            tableActiveMatches1.getColumnModel().getColumn(1).setMaxWidth(80);
+        }
+
+        stopSelectedRoundButton.setText("Stop selected round");
+        stopSelectedRoundButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stopSelectedRoundButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -183,97 +219,112 @@ public class AdminPanel extends javax.swing.JFrame {
                 .addGap(22, 22, 22)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jSlider2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jSlider2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(9, 9, 9)
-                                        .addComponent(jLabel2)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(setMaxQueueTimeButton))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel1)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(setTurnDurationButton))))
+                                .addGap(9, 9, 9)
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(setMaxQueueTimeButton))
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(12, 12, 12)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(stopAllCurrentMatchesButton)
-                                    .addComponent(addMockedMatchButton)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(ClearAllDataButton, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jCheckBox1)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 255, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(SaveActionsButton))
-                        .addGap(27, 27, 27))
-                    .addComponent(jScrollPane3)
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(setTurnDurationButton))))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(ClearAllDataButton, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jCheckBox1)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(SaveActionsButton))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGap(101, 101, 101)
+                                    .addComponent(stopSelectedRoundButton)
+                                    .addGap(0, 0, Short.MAX_VALUE))))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(15, 15, 15))
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(7, 7, 7)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jLabelTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(378, 378, 378)))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(7, 7, 7)
-                        .addComponent(jLabelTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(75, 75, 75))))
+                        .addGap(12, 12, 12)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(stopAllCurrentRoundsButton)
+                            .addComponent(addMockedRoundButton))))
+                .addGap(24, 24, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(28, 28, 28)
+                .addGap(16, 16, 16)
                 .addComponent(jLabelTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(ClearAllDataButton)
+                        .addComponent(jCheckBox1))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(SaveActionsButton)
-                            .addComponent(ClearAllDataButton)
-                            .addComponent(jCheckBox1)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(addMockedMatchButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(stopAllCurrentMatchesButton)
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jSlider1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(setTurnDurationButton)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(5, 5, 5)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jSlider2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel2)
-                                .addComponent(setMaxQueueTimeButton)))))
-                .addGap(20, 20, 20))
+                        .addComponent(stopSelectedRoundButton)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(135, 135, 135)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(addMockedRoundButton)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(stopAllCurrentRoundsButton)
+                                        .addGap(18, 18, 18)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                            .addComponent(jSlider1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(setTurnDurationButton))
+                                .addGap(5, 5, 5)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jSlider2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel2)
+                                        .addComponent(setMaxQueueTimeButton))))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(43, 43, 43)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(SaveActionsButton)))))
+                .addGap(18, 18, 18))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jSlider1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jSlider1MouseReleased
-        // TODO add your handling code here:
         jLabel1.setText(jSlider1.getValue()*50+"ms");
     }//GEN-LAST:event_jSlider1MouseReleased
 
     private void jSlider1MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jSlider1MouseDragged
-        // TODO add your handling code here:
         jLabel1.setText(jSlider1.getValue()*50+"ms");
     }//GEN-LAST:event_jSlider1MouseDragged
 
     private void jSlider2MouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jSlider2MouseDragged
-        // TODO add your handling code here:
         jLabel2.setText(jSlider2.getValue()*5+"s");
         
     }//GEN-LAST:event_jSlider2MouseDragged
 
     private void jSlider2MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jSlider2MouseReleased
-        // TODO add your handling code here:
         jLabel2.setText(jSlider2.getValue()*5+"s");
     }//GEN-LAST:event_jSlider2MouseReleased
 
@@ -286,7 +337,6 @@ public class AdminPanel extends javax.swing.JFrame {
     }//GEN-LAST:event_ClearAllDataButtonActionPerformed
 
     private void SaveActionsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveActionsButtonActionPerformed
-        // TODO add your handling code here:
         Settings settings = new Settings();
         Map<Action, Integer> defaultActionCosts = settings.getDefaultActionCosts();
         defaultActionCosts.put(Action.SPREAD, (int)jTable1.getValueAt(0, 1));
@@ -304,20 +354,28 @@ public class AdminPanel extends javax.swing.JFrame {
         AdminPanelHandler.SAVE_NEW_SETTINGS = true;
     }//GEN-LAST:event_SaveActionsButtonActionPerformed
 
-    private void stopAllCurrentMatchesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopAllCurrentMatchesButtonActionPerformed
-        // TODO add your handling code here:
-        AdminPanelHandler.STOP_ALL_MATCHES = true;
-    }//GEN-LAST:event_stopAllCurrentMatchesButtonActionPerformed
+    private void stopAllCurrentRoundsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopAllCurrentRoundsButtonActionPerformed
+        AdminPanelHandler.STOP_ALL_ROUNDS = true;
+    }//GEN-LAST:event_stopAllCurrentRoundsButtonActionPerformed
+
+    private void addMockedRoundButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addMockedRoundButtonActionPerformed
+        AdminPanelHandler.ADD_MOCKED_ROUND = true;
+    }//GEN-LAST:event_addMockedRoundButtonActionPerformed
+
+    private void stopSelectedRoundButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopSelectedRoundButtonActionPerformed
+        AdminPanelHandler.STOP_SELECTED_ROUND = true;
+    }//GEN-LAST:event_stopSelectedRoundButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ClearAllDataButton;
     private javax.swing.JButton SaveActionsButton;
-    private javax.swing.JButton addMockedMatchButton;
+    private javax.swing.JButton addMockedRoundButton;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabelTitle;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSlider jSlider1;
     private javax.swing.JSlider jSlider2;
@@ -325,6 +383,8 @@ public class AdminPanel extends javax.swing.JFrame {
     private app.ui.Log log1;
     private javax.swing.JButton setMaxQueueTimeButton;
     private javax.swing.JButton setTurnDurationButton;
-    private javax.swing.JButton stopAllCurrentMatchesButton;
+    private javax.swing.JButton stopAllCurrentRoundsButton;
+    private javax.swing.JButton stopSelectedRoundButton;
+    private app.ui.TableActiveMatches tableActiveMatches1;
     // End of variables declaration//GEN-END:variables
 }

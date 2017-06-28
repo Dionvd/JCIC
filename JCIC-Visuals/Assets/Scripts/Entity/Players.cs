@@ -6,14 +6,17 @@ public class Players : List<String>
 {
 	public List<long> Ids = new List<long>();
 
+	//playerNr = index, which defines which color the player receives.
+
 	public List<int> Scores = new List<int>();
 
 	public Players (JSONObject jsonPlayers)
 	{
 		for (int x = 0; x < jsonPlayers.Count; x++) {
-			this.Add(jsonPlayers [x].GetField("name").str);
-			Ids.Add (jsonPlayers [x].GetField ("id").i);
+			this.Add(jsonPlayers [x].str);
+			Ids.Add (long.Parse(jsonPlayers [x].str));
 			Scores.Add (0);
+
 		}
 	}
 

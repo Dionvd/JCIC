@@ -17,15 +17,15 @@ public class Map
 		Walls = new List<GameObject> ();
 	}
 
-	public Map (JSONObject jsonMap)
+	public Map (JSONObject jsonMap, int mapWidth, int mapHeight)
 	{
 		
-		Nodes = new Node[10,10];	
+		Nodes = new Node[mapWidth,mapHeight];	
 		Walls = new List<GameObject> ();
 
-		for (int x = 0; x < 10; x++) {
-			for (int y = 0; y < 10; y++) {
-				Nodes[x,y] = new Node (jsonMap [y*10+x]);
+		for (int x = 0; x < mapWidth; x++) {
+			for (int y = 0; y < mapHeight; y++) {
+				Nodes[x,y] = new Node (jsonMap [y*mapWidth+x]);
 			}
 		}
 

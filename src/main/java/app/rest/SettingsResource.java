@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * RESTful web service resource for getting the global settings. Settings are
- * not to be confused with MatchRules. MatchRules differ with each round of a
- * game whereas Settings remain the same. That said, MatchRules might be
+ * not to be confused with RoundRules. RoundRules differ with each round of a
+ * game whereas Settings remain the same. That said, RoundRules might be
  * partially derived from the Settings.
  *
  * @author dion

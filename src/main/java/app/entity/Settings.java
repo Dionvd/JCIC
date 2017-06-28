@@ -6,12 +6,13 @@ import java.util.EnumMap;
 import java.util.Map;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- * Global Settings for all matches. Can be configured with the admin panel.
+ * Global Settings for all rounds. Can be configured with the admin panel.
  * panel.
  *
  * @author dion
@@ -19,8 +20,9 @@ import javax.persistence.Id;
 @Entity
 public class Settings implements Serializable {
 
-    public static final boolean MOCKDATA = true;
-
+    public static final boolean DATA_INITIALIZATION = true;
+    public static final boolean DATA_MOCK  = false;
+    
     static final int DEFAULT_COST_SPREAD = 10;
     static final int DEFAULT_COST_SPREADALL = 40;
     static final int DEFAULT_COST_SPREADLINE = 60;
@@ -33,19 +35,19 @@ public class Settings implements Serializable {
     static final int DEFAULT_COST_DRAIN = 5;
     static final int DEFAULT_COST_EXPLODE = 80;
 
-    public static final int MAX_MATCH_PLAYER_SIZE = 8;
-    public static final int MAX_MATCHES = 5;
+    public static final int MAX_ROUND_PLAYER_SIZE = 8;
+    public static final int MAX_ROUNDS = 5;
     public static final int DEFAULT_MAP_WIDTH = 10;  
     public static final int DEFAULT_MAP_HEIGHT = 10;
 
     
     //Milliseconds per turn
-    private int playSpeed = 300;
+    private int playSpeed = 3000;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Map<Action, String> descriptions = new EnumMap<>(Action.class);
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Map<Action, Integer> defaultActionCosts = new EnumMap<>(Action.class);
 
     private double gameRuleFluctuation = 0.2;
@@ -106,11 +108,11 @@ public class Settings implements Serializable {
         this.defaultActionCosts = defaultActionCosts;
     }
 
-    public double getMatchRuleFluctuation() {
+    public double getRoundRuleFluctuation() {
         return gameRuleFluctuation;
     }
 
-    public void setMatchRuleFluctuation(double gameRuleFluctuation) {
+    public void setRoundRuleFluctuation(double gameRuleFluctuation) {
         this.gameRuleFluctuation = gameRuleFluctuation;
     }
 

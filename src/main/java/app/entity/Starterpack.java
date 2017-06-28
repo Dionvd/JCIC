@@ -24,6 +24,8 @@ public class Starterpack implements Serializable {
     private String language;
 
     private String link;
+    
+    private String author;
 
     /**
      * Entity constructor. Do not use.
@@ -37,11 +39,13 @@ public class Starterpack implements Serializable {
      * @param name
      * @param language
      * @param link
+     * @param author
      */
-    public Starterpack(String name, String language, String link) {
+    public Starterpack(String name, String language, String link, String author) {
         this.name = name;
         this.language = language;
         this.link = link;
+        this.author = author;
     }
 
     public Long getId() {
@@ -75,5 +79,15 @@ public class Starterpack implements Serializable {
     public void setLink(String link) {
         this.link = link;
     }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+    
+    
 
 }

@@ -26,14 +26,13 @@ public class PlayerService {
 
     private static final int BLOCKED_ON_FAILED_LOGIN_ATTEMPTS = 5;
     private static final int BLOCKED_TIMEOUT_MINUTES = 5;
-    private static final int SESSION_LENGTH_IN_SECONDS = 120;
 
     @Inject
     PlayerRepository playerRep;
 
     /**
-     * Tries to login the player with the given Credentials, storing the session
-     * ID. If it fails the failed login count goes up by one, potentially
+     * Tries to login the player with the given Credentials, storing the token. 
+     * If it fails the failed login count goes up by one, potentially
      * blocking the email.
      *
      * @param credentials
@@ -41,7 +40,7 @@ public class PlayerService {
      * @throws FailedLoginException when login fails.
      * @throws BlockedException when the email is blocked.
      */
-    public void Login(LoginCredentials credentials, HttpSession session) throws FailedLoginException, BlockedException {
+    public void Login(LoginCredentials credentials, String token) throws FailedLoginException, BlockedException {
 
         List<Player> players = playerRep.findByEmailIgnoreCase(credentials.getEmail());
 
@@ -49,13 +48,12 @@ public class PlayerService {
             //Email matches, check if this user is blocked or not.
             if (player.isBlocked() && !player.checkUnblocked()) {
                 //user is blocked
-                session.invalidate();
                 throw new BlockedException();
             }
             //user is not blocked, check if password matches.
             if (player.getPassword().equals(credentials.getPassword())) {
                 //credentials match, assign session
-                player.setSessionId(session.getId());
+                player.setToken(token);
                 playerRep.save(player);
                 //login succesful
                 return;
@@ -66,12 +64,11 @@ public class PlayerService {
                 //block account
                 if (player.getFailedLoginCount() == BLOCKED_ON_FAILED_LOGIN_ATTEMPTS) {
                     player.block(BLOCKED_TIMEOUT_MINUTES);
-                    session.invalidate();
+                    player.setToken(null);
                     throw new BlockedException();
                 }
             }
         }
-        session.invalidate();
         throw new FailedLoginException();
     }
 
@@ -95,20 +92,20 @@ public class PlayerService {
     }
 
     /**
-     * Checks if the sessionToken matches with the stored sessionToken.
+     * Checks if the Token matches with the stored Token.
      *
      * @param playerId
-     * @param sessionToken
+     * @param Token
      * @return
      * @throws FailedLoginException
      */
-    public boolean checkSessionToken(Long playerId, String sessionToken) throws FailedLoginException {
+    public boolean checkToken(Long playerId, String Token) throws FailedLoginException {
 
         Player p = playerRep.findOne(playerId);
         if (p == null) {
             throw new FailedLoginException();
         }
-        return p.getSessionId().equals(sessionToken);
+        return p.getToken().equals(Token);
     }
 
     /**

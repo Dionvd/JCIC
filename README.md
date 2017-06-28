@@ -38,6 +38,27 @@ The features that will be implemented are placed on a JIRA project with the same
 To get the latest stable code, please use the master branch.
 
 
+# Class Structure
+app : Contains application and config classes for running the application.
+app.bean : Contains bean classes that run asynchronous to the webservices for sending data to unity or progressing game turns.
+app.rest : Resource/Controller layer with Spring-web, handles incoming REST requests to access game and player data from the outside. 
+app.service : Service layer, contains service logic that validates REST requests.
+app.dao : Data access layer, Spring-data Repository package, used by services to access data.
+app.entity : Entity classes represent the data objects that can be stored by the application or shared by web services.
+app.dto : Data transfer objects. Data classes that are not stored in the database.
+app.enums : Enum package, used for common used names among lists.
+app.exception : Custom exceptions with Spring-web annotations that help with better HTTP error handling.
+
+
+
+# Database Generation
+Spring Boot can use Hibernate to create tables and fill a database for JCIC if the application.properties file is properly set up. 
+You can change the database info shown in this file to that of your own. The ‘ddl-auto’ defines what happens to the database on starting up the application. By default it should be on ‘update’, and only update the database tables. But if you change this to ‘create’, it will instead create the empty tables that you need for JCIC when you run the application. In the Settings class you can enable mock data to be created on startup as well, so that data for five players and a single match are immediately filled in.
+
+If you do not have a database available or simply do not wish to use one, clearing application.properties will generate an embedded database in your memory, that will be lost on closing the application.
+
+
+
 # Code Coverage
 JCIC uses JaCoCo for Java code coverage. To build with JaCoCo you must use the following Maven Commands :
 -mvn clean test
@@ -50,16 +71,6 @@ Then, you will have to "build with dependencies".
 JaCoCo generates a website with all the data on it. You can find the site at target -> site -> index.html.
 
 
-# Class Structure
-app : Contains application and config classes for running the application.
-app.bean : Contains bean classes that run asynchronous to the webservices for sending data to unity or progressing game turns.
-app.rest : Resource/Controller layer with Spring-web, handles incoming REST requests to access game and player data from the outside. 
-app.service : Service layer, contains service logic that validates REST requests.
-app.dao : Data access layer, Spring-data Repository package, used by services to access data.
-app.entity : Entity classes represent the data objects that can be stored by the application or shared by web services.
-app.dto : Data transfer objects. Data classes that are not stored in the database.
-app.enums : Enum package, used for common used names among lists.
-app.exception : Custom exceptions with Spring-web annotations that help with better HTTP error handling.
 
 # Credits
 Dion van Dam (Finalist Intern) - Software Developing and documentation

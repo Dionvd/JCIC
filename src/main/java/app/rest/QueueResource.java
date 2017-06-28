@@ -63,18 +63,18 @@ public class QueueResource {
      * queue position of player.
      *
      * @param playerIdString
-     * @param sessionToken
+     * @param Token
      * @return index of playerId in the WaitingQueue.
      * @throws FailedLoginException
      * @throws NotANumberException
      */
     @RequestMapping(value = "/{playerId}/{sessionToken}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public JsonWrapper joinQueue(@PathVariable(value = "playerId") String playerIdString, @PathVariable(value = "sessionToken") String sessionToken) throws FailedLoginException, NotANumberException {
+    public JsonWrapper joinQueue(@PathVariable(value = "playerId") String playerIdString, @PathVariable(value = "token") String token) throws FailedLoginException, NotANumberException {
 
         long playerId = Validate.parseLong(playerIdString);
 
-        //Verify sessionToken
-        playerService.checkSessionToken(playerId, sessionToken);
+        //Verify token
+        playerService.checkToken(playerId, token);
 
         //Join queue
         int queuePos = queueService.joinQueue(playerId);

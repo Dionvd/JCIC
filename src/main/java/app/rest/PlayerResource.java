@@ -11,8 +11,10 @@ import app.dto.JsonWrapper;
 import app.dto.LoginCredentials;
 import app.dto.RegisterCredentials;
 import app.service.PlayerService;
+import app.util.TokenGenerator;
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,30 +62,28 @@ public class PlayerResource {
     public Player getPlayer(@PathVariable(value = "playerId") String playerId) throws NotFoundException, NotANumberException {
 
         long i = Validate.parseInt(playerId);
-
-        Player player = playerService.findOne(i);
-        return player;
+        
+        return playerService.findOne(i);
     }
-
+    
     /**
      * Logs in with the given credentials.
      *
      * @param credentials
      * @param sessionLeaveEmpty (auto injected).
-     * @return session token
+     * @return token
      * @throws FailedLoginException 
      * @throws BlockedException 
      */
     @RequestMapping(value = "/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public JsonWrapper login(@RequestBody LoginCredentials credentials, HttpSession sessionLeaveEmpty) throws FailedLoginException, BlockedException {
+    public JsonWrapper login(@RequestBody LoginCredentials credentials) throws FailedLoginException, BlockedException {
 
-        //after 2 minutes of inactivity, the session expires...
-        sessionLeaveEmpty.setMaxInactiveInterval(60 * 2);
-
+        String token = TokenGenerator.next();
+                
         //login and set session
-        playerService.Login(credentials, sessionLeaveEmpty);
+        playerService.Login(credentials, token);
         
-        return new JsonWrapper(sessionLeaveEmpty.getId());
+        return new JsonWrapper(token);
     }
 
     /**

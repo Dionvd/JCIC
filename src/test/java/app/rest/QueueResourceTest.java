@@ -71,11 +71,11 @@ public class QueueResourceTest {
     @Test
     public void testJoinQueue() throws Exception {
         when(queueService.joinQueue(TEST_ID_LONG)).thenReturn(TEST_INT);
-        when(playerService.checkSessionToken(TEST_ID_LONG, TEST_ID_STRING)).thenReturn(true);
+        when(playerService.checkToken(TEST_ID_LONG, TEST_ID_STRING)).thenReturn(true);
 
         JsonWrapper value = queueResource.joinQueue(TEST_ID_STRING, TEST_ID_STRING);
         verify(queueService).joinQueue(TEST_ID_LONG);        
-        verify(playerService).checkSessionToken(TEST_ID_LONG, TEST_ID_STRING);
+        verify(playerService).checkToken(TEST_ID_LONG, TEST_ID_STRING);
 
         assertEquals(TEST_INT+"", value.getValue());
     }

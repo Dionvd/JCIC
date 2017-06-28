@@ -47,6 +47,7 @@
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
         </dependency> 
+        
         <!--SPRING OAUTH2 -->
 <!--        <dependency>
             <groupId>org.springframework.security.oauth</groupId>
@@ -109,7 +110,11 @@
              
                    
         <!-- -->
-        
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>6.0.6</version>
+        </dependency>
         
         
                 

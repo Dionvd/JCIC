@@ -1,16 +1,16 @@
 package app.service;
 
 import app.bean.SocketToUnity;
-import app.dao.MatchRepository;
 import app.dao.PlayerRepository;
 import app.dao.SettingsRepository;
-import app.entity.Match;
+import app.entity.Round;
 import app.entity.Player;
 import app.entity.Settings;
 import app.dto.WaitingQueue;
 import app.exception.NotFoundException;
 import javax.inject.Inject;
 import org.springframework.stereotype.Service;
+import app.dao.RoundRepository;
 
 /**
  * QueueService handles Queue Requests. Because the waiting queue does not need
@@ -29,9 +29,9 @@ public class QueueService {
     SettingsRepository settingsRep;
     
     @Inject
-    MatchRepository matchRep;
+    RoundRepository roundRep;
     
-    int openMatchSpots = Settings.MAX_MATCHES;
+    int openRoundSpots = Settings.MAX_ROUNDS;
 
     /**
      * Gets the current WaitingQueue.
@@ -81,8 +81,8 @@ public class QueueService {
             //Player is not yet in queue, add him.
             waitingQueue.getPlayers().add(playerRep.findOne(playerId));
             
-            //check if new match can be made
-            checkForNewMatch();
+            //check if new round can be made
+            checkForNewRound();
             
             SocketToUnity.setQueueUpdate(waitingQueue);
             queuePos = waitingQueue.getSize();
@@ -92,27 +92,27 @@ public class QueueService {
     }
     
     /**
-     * Checks if a new Match can be created with the current players waiting
+     * Checks if a new Round can be created with the current players waiting
      * in line.
      * @return
      */
-    public Match checkForNewMatch() {
+    public Round checkForNewRound() {
         
-        if (waitingQueue.getSize() >= Settings.MAX_MATCH_PLAYER_SIZE && openMatchSpots > 0)
+        if (waitingQueue.getSize() >= Settings.MAX_ROUND_PLAYER_SIZE && openRoundSpots > 0)
         {
-            //make a new Match
-            openMatchSpots--;
+            //make a new Round
+            openRoundSpots--;
             
-            Match match = new Match(settingsRep.findOne(0L));
+            Round round = new Round(settingsRep.findOne(0L));
             
-            //fill match with players from the Waiting Queue
-            while (match.getPlayerCount() < match.getMaxPlayerSize()) {
-                match.getPlayers().add(waitingQueue.RemoveFirst());
+            //fill round with players from the Waiting Queue
+            while (round.getPlayerCount() < round.getMaxPlayerSize()) {
+                round.getPlayerIds().add(waitingQueue.RemoveFirst().getId());
             }
             SocketToUnity.setQueueUpdate(waitingQueue);
 
-            matchRep.save(match);
-            return match;
+            roundRep.save(round);
+            return round;
         }
         return null;
     }

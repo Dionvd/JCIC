@@ -10,9 +10,9 @@ using UnityEngine;
 public class SizeScaleAnimation : MonoBehaviour {
 
 
-	float Size = 0;
-	float SizePerFrame = 0;
-	bool HeightOnly = false;
+	public float Size = 0;
+	public float SizePerFrame = 0;
+	public bool HeightOnly = false;
 
 	public SizeScaleAnimation()
 	{
@@ -40,17 +40,14 @@ public class SizeScaleAnimation : MonoBehaviour {
 	void Update () {
 
 		Vector3 xyzScale = this.gameObject.transform.localScale;
+		bool end = false;
 
 		if (xyzScale.y > Size && SizePerFrame > 0) {
 			//too big, shrink instead
 			SizePerFrame *= -5;
 		}
-
 		float newScale = xyzScale.y + SizePerFrame;
 
-
-
-		bool end = false;
 		if (newScale > Size && SizePerFrame > 0) { //expanding limit
 			newScale = Size;
 			end = true;

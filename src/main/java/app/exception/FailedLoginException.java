@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * Exception class that throws HTTP error 401 when the given credentials to 
- * login with do not match.
+ * login with do not round.
  *
  * @author dion
  */
-@ResponseStatus(value = HttpStatus.UNAUTHORIZED, reason = "Failed to login with the given credentials.")
+@ResponseStatus(value = HttpStatus.UNAUTHORIZED, reason = "Credentials were invalid.")
 public class FailedLoginException extends Exception {
 
     /**
