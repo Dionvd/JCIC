@@ -4,14 +4,16 @@ import app.exception.ParameterOutOfBoundsException;
 import java.awt.Point;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-
 /**
  * RoundMap represents the current board of a single round of the game.  
  * This class contains each individual node on the map, stored as one big list.
@@ -111,6 +113,66 @@ public class RoundMap implements Serializable  {
         this.height = height;
     }
     
-    
+    public void generate(Set<Long> playerIds)
+    {
+        try {
+            
+            Iterator<Long> iterator = playerIds.iterator();
+            
+            for (int i = 0; i < playerIds.size(); i++) {
+                
+                switch (i)
+                {
+                    case 0:
+                        getNode(0, 0).setOwnerId(iterator.next());
+                        break;
+                    case 1:
+                        getNode(9, 9).setOwnerId(iterator.next());
+                        break;
+                    case 2:
+                        getNode(9, 0).setOwnerId(iterator.next());
+                        break;
+                    case 3:
+                        getNode(0, 9).setOwnerId(iterator.next());
+                        break;
+                }
+            }
+        
+            for (int i = 0; i < 7; i++) {
+                
+                int x = (int)(Math.random()*8)+1;
+                int y = (int)(Math.random()*8)+1;
+
+                getNode(x, y).setType(-1);
+                getNode(9-x, 9-y).setType(-1);
+            }
+        
+        }
+        catch(Exception e) { }
+    }
+
+    public long getPlayerWithMostNodes() {
+        
+        if (nodes == null) return -1;
+        
+        Map<Long, Long> countMap = nodes.stream()
+            .collect(Collectors.groupingBy(p -> p.getOwnerId(), 
+         Collectors.counting()));
+        
+        Long winnerId = 0L;
+        Long winnerCount = 0L;
+        
+        for (Map.Entry<Long, Long> entry : countMap.entrySet()) {
+            if (entry.getKey() == 0L || entry.getKey() == -1L) continue;
+            
+            if (entry.getValue() > winnerCount)
+            {
+                winnerId = entry.getKey();
+                winnerCount = entry.getValue();
+            }
+        }
+        
+        return winnerId;
+    }
 
 }

@@ -108,14 +108,19 @@ public class AdminPanelHandler {
 
                     if (ADD_MOCKED_ROUND)
                     {
-                        long i = roundRepository.count();
-                        
-                        Round round = new Round(new Settings());
-                        round.setMap(new RoundMap(new Point(10, 10), round.getId()));
-                        round.setId(i+1);
-                        HostGame.storeRound(round);
+                        Settings settings = settingsRepository.findOne(1L);
+                        Round round = new Round(settings);
                         roundRepository.save(round);
+                        RoundMap map = new RoundMap(new Point(10, 10), round.getId());
+                        round.setMap(map);
+
+                        round.getPlayerIds().add(1L);                 
+                        round.getPlayerIds().add(2L);
+                        round.getMap().generate(round.getPlayerIds());
+                        roundRepository.save(round);  
+                        HostGame.storeRound(round);
                         ADD_MOCKED_ROUND = false;
+                        Log.write("Game " + round.getId() + " initiated manually.");
                     }
                     
                     if (STOP_SELECTED_ROUND)

@@ -15,11 +15,11 @@ using System.Linq;
 /// </summary>
 public class UpdateGame : MonoBehaviour
 {
-	Map Map;
+	
+	Dictionary<long, Map> Maps;
+	bool[] mapPos = new bool[5];
 
 	public static List<JSONObject> UpdateJSONObjects = new List<JSONObject> ();
-
-	private static bool MockData = false;
 
 	private Players players;
 
@@ -27,10 +27,12 @@ public class UpdateGame : MonoBehaviour
 	// Initialization
 	void Start ()
 	{
-		Map = new Map ();
-
-		if (MockData)
-			MockMap ();
+		Maps = new Dictionary<long, Map>();
+		mapPos [0] = false;
+		mapPos [1] = false;
+		mapPos [2] = false;
+		mapPos [3] = false;
+		mapPos [4] = false;
 	}
 
 
@@ -53,7 +55,7 @@ public class UpdateGame : MonoBehaviour
 			}
 		}
 
-		GameObject.Find ("Main Camera").GetComponent<UserInterface> ().SetScore (Map);
+		GameObject.Find ("Main Camera").GetComponent<UserInterface> ().SetScore (Maps);
 	}
 		
 
@@ -66,7 +68,6 @@ public class UpdateGame : MonoBehaviour
 		//check if a new map was received
 		if (jsonObject.HasField ("map")) {
 
-			Debug.Log ("Match info TEST " + jsonObject);
 
 			//update match info
 			long matchId = jsonObject.GetField("id").i;
@@ -75,7 +76,7 @@ public class UpdateGame : MonoBehaviour
 			if (playersJson.ToString () == "null") {
 				Debug.Log ("Player information was empty!");
 			} else {
-				
+
 				players = new Players (playersJson);
 				UpdateMatchInfo (matchId, players);
 				Debug.Log ("Match info updated! " + playersJson);
@@ -83,11 +84,11 @@ public class UpdateGame : MonoBehaviour
 				//update map
 				JSONObject mapJson = jsonObject.GetField ("map").GetField ("nodes");
 				int mapWidth = 10;
-				int mapHeight = 10;
+				int mapHeight = 10;	
 				
 				if (mapJson != null) {
 					Map map = new Map (mapJson, mapWidth, mapHeight);
-					UpdateMap (map);
+					UpdateMap (matchId, map);
 					Debug.Log ("Map updated! " + mapJson);
 				}
 			}
@@ -95,11 +96,12 @@ public class UpdateGame : MonoBehaviour
 		//check if new moves were received
 		else if (jsonObject.HasField ("moves")) { 
 
+			long matchId = jsonObject.GetField("id").i;
 			JSONObject movesJson = jsonObject.GetField ("moves");
 
 			if (movesJson != null) {
 				Moves moves = new Moves (movesJson);
-				UpdateMap (moves);
+				UpdateMap (matchId, moves);
 				Debug.Log ("Moves performed on map!");
 			}
 		} 
@@ -112,15 +114,59 @@ public class UpdateGame : MonoBehaviour
 			Debug.Log ("Queue updated!");
 		}
 	}
-
+		
 
 
 	/// <summary>
 	/// Updates the map to represent the newly received map
 	/// </summary>
 	/// <param name="newMap">New map.</param>
-	void UpdateMap (Map newMap)
+	void UpdateMap (long id, Map newMap)
 	{
+		if (Maps.Count == 5)
+			return;
+		
+		Map Map = new Map ();
+		Maps.Add(id, Map);
+
+		int loc = -1;
+
+		for (int i = 0; i < 5; i++) {
+			if (!mapPos [i]) {
+				//location is free
+				loc = i;
+				mapPos[i] = true;
+			}
+		}
+
+		switch (Maps.Count) {
+		case 1:
+			Map.X = 5;
+			Map.Y = 5;
+			break;
+		case 2:
+			Map.X = -6;
+			Map.Y = 5;
+
+			break;
+		case 3:
+			Map.X = 16;
+			Map.Y = 5;
+
+			break;
+		case 4: 
+			Map.X = -17;
+			Map.Y = 5;
+
+			break;
+		case 5:
+			Map.X = 27;
+			Map.Y = 5;
+
+			break;
+		}
+
+
 		for (int y = 0; y < newMap.Height; y++) {
 			for (int x = 0; x < newMap.Width; x++) {
 				if (Map [x, y] != null) {
@@ -179,8 +225,10 @@ public class UpdateGame : MonoBehaviour
 	/// Updates the map to show the moves that are being performed.
 	/// </summary>
 	/// <param name="moves">Moves.</param>
-	void UpdateMap (Moves moves)
+	void UpdateMap (long id, Moves moves)
 	{
+		Map Map = Maps [id];
+
 		foreach (Move move in moves) {
 
 			Vector2 newLoc = Map.CalcNewLoc (move.X, move.Y, move.Direction);
@@ -201,7 +249,45 @@ public class UpdateGame : MonoBehaviour
 						}
 					}
 				}
-			} else {
+			}
+			else if (move.X == -9 && move.Y == -9) {
+				Debug.Log ("ROUND ENDED");
+				for (int y = 0; y < Map.Height; y++) {
+					for (int x = 0; x < Map.Width; x++) {
+						Node node = Map [x, y];
+						if (node != null && node.OwnerId != 0) {
+							node.SetPower(0);
+							node.ClearGameObjects ();
+						}
+					}
+				}
+
+				for (int i = 0; i < Map.Walls.Count; i++) {
+					Destroy (Map.Walls[i]);
+				}
+
+				switch (Map.X) {
+				case 5:
+					mapPos [0] = false;
+					break;
+				case -6:
+					mapPos [1] = false;
+					break;
+				case 16:
+					mapPos [2] = false;
+					break;
+				case -17:
+					mapPos [3] = false;
+					break;
+				case 27:
+					mapPos [4] = false;
+					break;
+
+				}
+			}
+
+
+			else {
 				switch (move.Action) {
 
 				case 0: //sleep
@@ -331,28 +417,6 @@ public class UpdateGame : MonoBehaviour
 		GameObject.Find ("Main Camera").GetComponent<UserInterface> ().SetQueueText (text);
 	}
 
-	/// <summary>
-	/// Mocks the map with mock data, if enabled at Start().
-	/// </summary>
-	void MockMap ()
-	{
-		for (int y = 0; y < 10; y++)
-			for (int x = 0; x < 10; x++) {
-				GameObject hexObj = Instantiate (AssignedPrefabs.HEXAGON_PREFAB, new Vector3 (x + (y % 2 / 2f), 0, -y * 0.9f), this.transform.rotation);
-				GameObject bldObj = Instantiate (AssignedPrefabs.BUILDING_PREFAB, new Vector3 (x + (y % 2 / 2f), 0, -y * 0.9f), this.transform.rotation);
-
-				Map [x, y] = new Node (0, 0, 0, 0, hexObj, bldObj);
-			}
-		Map [0, 0].OwnerId = 1;
-		Map [9, 9].OwnerId = 2;
-
-		players = new Players (new JSONObject(""));
-		players.Add ("John");
-		players.Add ("Jake");
-
-		Map [0, 0].SetColorByPlayerNr (0);
-		Map [9, 9].SetColorByPlayerNr (1);
-	}
 
 
 }

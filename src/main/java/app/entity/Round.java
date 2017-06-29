@@ -140,5 +140,9 @@ public class Round implements Serializable {
     public boolean isEnded() {
         return ended;
     }
+
+    public void setEnded(boolean b) {
+        ended = b;
+    }
     
 }

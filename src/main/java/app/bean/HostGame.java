@@ -27,6 +27,7 @@ import app.dao.SettingsRepository;
 import app.rest.SettingsResource;
 import app.ui.TableActiveMatches;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,7 +46,7 @@ import java.util.stream.Stream;
 @Configuration
 public class HostGame {
 
-    private static Map<Long, Round> activeRounds = new HashMap<>();
+    public static Map<Long, Round> activeRounds = new HashMap<>();
 
     private static Map<Long, MoveList> playerMoves = new HashMap<>();
 
@@ -111,19 +112,18 @@ public class HostGame {
                     
                     round.getPlayerIds().add(1L);                 
                     round.getPlayerIds().add(2L);
+                    round.getMap().generate(round.getPlayerIds());
                     roundRepository.save(round);                    
                   
-
-                    activeRounds.put(round.getId(), round);
+                    storeRound(round);
                     Log.write("Game " + round.getId() + " initiated due to lack of active matches.");
                 }
                 
                 sleep(500);
 
                 //For every round, perform a turn
-                for (Round activeRound : activeRounds.values()) {
+                for (Round activeRound : new ArrayList<Round>(activeRounds.values())) {
 
-                    
                     //Internal bots calculate and send in their moves
                     calculateBotMoves(activeRound);
 
@@ -140,17 +140,33 @@ public class HostGame {
                     //Store round
                     roundRepository.save(activeRound);
 
-                    //SEND TURN TO UNITY
-                    SocketToUnity.setTurnMoves(playerMoves);
-
-                    //RESET MOVE LIST
-                    for (Long l : activeRound.getPlayerIds()) {
-                        playerMoves.put(l, null);
+                    //DID THE MATCH END?
+                    if (activeRound.getTurn() > 300)
+                    {
+                        long id = activeRound.getMap().getPlayerWithMostNodes();
+                        if (id > 0)
+                        {
+                            Player winner = playerRepository.findOne(id);
+                            winner.setWinCount(winner.getWinCount()+1);
+                        }
+                        activeRound.setEnded(true);
+                        activeRounds.remove(activeRound.getId());
                     }
-
+                    
                     
                 }
 
+                
+                //SEND TURN TO UNITY
+                SocketToUnity.addTurnMoves(playerMoves, activeRounds);
+                
+                //RESET MOVE LIST
+                for (Round activeRound : activeRounds.values()) {
+                    for (Long l : activeRound.getPlayerIds()) {
+                        playerMoves.put(l, null);
+                    }
+                }
+                
                 //RESET DATA?
                 if (stopRoundId != -1)
                 {
@@ -314,6 +330,8 @@ public class HostGame {
      */
     public static void storeRound(Round round) {
         activeRounds.put(round.getId(), round);
+        
+        SocketToUnity.addRound(round);
     }
 
     /**

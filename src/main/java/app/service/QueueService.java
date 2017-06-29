@@ -1,5 +1,6 @@
 package app.service;
 
+import app.bean.HostGame;
 import app.bean.SocketToUnity;
 import app.dao.PlayerRepository;
 import app.dao.SettingsRepository;
@@ -31,7 +32,6 @@ public class QueueService {
     @Inject
     RoundRepository roundRep;
     
-    int openRoundSpots = Settings.MAX_ROUNDS;
 
     /**
      * Gets the current WaitingQueue.
@@ -84,7 +84,6 @@ public class QueueService {
             //check if new round can be made
             checkForNewRound();
             
-            SocketToUnity.setQueueUpdate(waitingQueue);
             queuePos = waitingQueue.getSize();
         }
         
@@ -98,10 +97,9 @@ public class QueueService {
      */
     public Round checkForNewRound() {
         
-        if (waitingQueue.getSize() >= Settings.MAX_ROUND_PLAYER_SIZE && openRoundSpots > 0)
+        if (waitingQueue.getSize() >= Settings.MAX_ROUND_PLAYER_SIZE && HostGame.activeRounds.size() < Settings.MAX_ROUNDS)
         {
             //make a new Round
-            openRoundSpots--;
             
             Round round = new Round(settingsRep.findOne(0L));
             
@@ -112,6 +110,7 @@ public class QueueService {
             SocketToUnity.setQueueUpdate(waitingQueue);
 
             roundRep.save(round);
+            HostGame.storeRound(round);
             return round;
         }
         return null;

@@ -33,7 +33,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import app.dao.RoundRepository;
+import app.dto.MoveList2;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -50,7 +52,8 @@ public class SocketToUnity {
     private static Socket socket;
     private static OutputStream os;
 
-    private static final MoveList movesToSend = new MoveList();
+    private static final List<Round> roundsToSend = new ArrayList<Round>();
+    private static final List<MoveList2> movesToSend = new ArrayList<MoveList2>();
     private static final List<Player> waitingQueueToSend = new ArrayList<>();
     
     @Inject
@@ -95,19 +98,30 @@ public class SocketToUnity {
                     }
                     Log.write("Client connected...");
                     
+                    resetRoundsToSend();
                     
-                    boolean success = send(getRound());
+                    boolean success = send(getQueue());
                     if (success == false) return;
-                    
-                    success = send(getQueue());
-                    if (success == false) return;
-
                     
                     while (true) {
                         try {
-                            MoveList takeMoves = takeMoves();
-                            if (takeMoves != null && !takeMoves.getMoves().isEmpty())
-                            { success = send(takeMoves); if (success == false) return; }
+                            
+                            
+                            Round takeRound = takeRound();
+                            while (takeRound != null)
+                            {
+                                success = send(takeRound);
+                                if (success == false) return;
+                                takeRound = takeRound();
+                            }
+                            
+                            MoveList2 takeMoves = takeMoves();
+                            while (takeMoves != null)
+                            {
+                                if (!takeMoves.getMoves().isEmpty())
+                                { success = send(takeMoves); if (success == false) return; }
+                                takeMoves = takeMoves();
+                            }
                             
                             PlayerList takeQueue = takeQueue();
                             if (takeQueue != null && !takeQueue.getPlayers().isEmpty())
@@ -133,6 +147,16 @@ public class SocketToUnity {
 
     }
 
+    
+    
+    private static void resetRoundsToSend() {
+
+        synchronized (roundsToSend)
+        {
+            roundsToSend.clear();
+            roundsToSend.addAll(HostGame.activeRounds.values());
+        }
+    }
 
     public static boolean send(Object o) {
 
@@ -152,7 +176,9 @@ public class SocketToUnity {
             toSendLenBytes[3] = (byte) ((toSendLen >> 24) & 0xff);
 
             //send to client
-            Log.write("Sending to Unity : " + toSend);
+            if (o instanceof MoveList2 == false)
+                Log.write("Sending to Unity : " + toSend);
+            
             os.write(toSendLenBytes);
             os.write(toSendBytes);
             
@@ -189,32 +215,38 @@ public class SocketToUnity {
      * 
      * @return
      */
-    public static Round getRound() {
-        try {
-        Round round = roundRepository.findOne(1L);
-        RoundMap map = round.getMap();
+    public static Round takeRound() {
         
-        Iterable<Node> foundNodes = nodeRepository.findAll();
-        ArrayList<Node> nodes = new ArrayList<>();
-        foundNodes.forEach(nodes::add);
-        map.setNodes(nodes);
-        
-        Set<Long> foundPlayers = round.getPlayerIds();
-        round.setPlayerIds(foundPlayers);
-        
-        return round;
-        
+        synchronized (roundsToSend)
+        {
+            if (roundsToSend.isEmpty() == false)
+            {
+                Round round = roundsToSend.get(0);
+                roundsToSend.remove(0);
+                return round;
+            }
+            else
+            {
+                return null;
+            }
         }
-        catch (Exception e) { return null; }
+        
     }
     
     
-    public static MoveList takeMoves() {
+    public static MoveList2 takeMoves() {
         synchronized (movesToSend)
         {
-            MoveList moves = new MoveList(movesToSend.getMoves());
-            movesToSend.getMoves().clear();
-            return moves;
+            if (movesToSend.isEmpty() == false)
+            {
+                MoveList2 moves = movesToSend.get(0);
+                movesToSend.remove(0);
+                return moves;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
     
@@ -235,15 +267,36 @@ public class SocketToUnity {
     }
     
     
-    public static void setTurnMoves(Map<Long, MoveList> playerMoves) {
+    public static void addTurnMoves(Map<Long, MoveList> playerMoves, Map<Long, Round> activeRounds) {
         
         synchronized (movesToSend)
         {
-            MoveList allMoves = MoveList.merge(playerMoves.values());
-            //new turn signal move
-            movesToSend.getMoves().add(new Move(new Point(-1,-1), Action.SLEEP, MoveDirection.CENTRAL));
-            //add all moves to this turn
-            movesToSend.getMoves().addAll(allMoves.getMoves());
+            Iterator<Round> iterator = activeRounds.values().iterator();
+            
+            while (iterator.hasNext())
+            {
+                Round round = iterator.next();
+                
+                Iterator<Long> playerIds = round.getPlayerIds().iterator();
+                MoveList2 moves = new MoveList2(round.getId());
+                
+                if (round.isEnded())
+                    moves.getMoves().add(new Move(new Point(-9,-9), Action.EXPLODE, MoveDirection.CENTRAL));
+                else
+                    moves.getMoves().add(new Move(new Point(-1,-1), Action.SLEEP, MoveDirection.CENTRAL));
+                
+                while (playerIds.hasNext())
+                {
+                    long playerId = playerIds.next();
+                    MoveList get = playerMoves.get(playerId);
+                    if (get != null)
+                    moves.getMoves().addAll(get.getMoves());
+                }
+                
+                //all moves from one round are added together, ready to be sent to unity.
+                movesToSend.add(moves);
+            }
+            
         }
     }
     
@@ -251,7 +304,6 @@ public class SocketToUnity {
     {
         synchronized (waitingQueueToSend)
         {
-            List<String> names = new ArrayList<>();
             List<Player> players = waitingQueue.getPlayers();
 
             players.forEach((player) -> {
@@ -260,4 +312,13 @@ public class SocketToUnity {
         }
     }
     
+    public static void addRound(Round round)
+    {
+        
+        synchronized (roundsToSend)
+        {
+            if (roundsToSend.contains(round) == false)
+            roundsToSend.add(round);
+        }
+    }
 }

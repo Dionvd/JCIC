@@ -42,22 +42,23 @@ public class UserInterface : MonoBehaviour {
 		gameInfo.transform.GetChild (0).GetComponent<UnityEngine.UI.Text> ().text = "Game "+id+"\n"+players.toString();
 	}
 
-	public void SetScore(Map map)
+	public void SetScore(Dictionary<long, Map> maps)
 	{
 		if (this.Players == null)
 			return;
 
+		
 		Dictionary<long, int> score = new Dictionary<long, int> ();
 
-		for (int x = 0; x < map.Width; x++) {
-
-			for (int y = 0; y < map.Height; y++) {
-				if (score.ContainsKey (map [x, y].OwnerId))
-					score [map [x, y].OwnerId]++;
-				else
-					score [map [x, y].OwnerId] = 1;
-			}
-		}
+//		for (int x = 0; x < map.Width; x++) {
+//
+//			for (int y = 0; y < map.Height; y++) {
+//				if (score.ContainsKey (map [x, y].OwnerId))
+//					score [map [x, y].OwnerId]++;
+//				else
+//					score [map [x, y].OwnerId] = 1;
+//			}
+//		}
 
 		for (int i = 0; i < Players.Count; i++) {
 			if (score.ContainsKey (Players.Ids [i])) {

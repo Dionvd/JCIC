@@ -20,7 +20,7 @@ public class Log extends JTextArea {
     
     public static void write(String string) { 
         self.append("\n"+string);
-       
+        self.setCaretPosition(self.getCaretPosition());
     }
     
         

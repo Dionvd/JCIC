@@ -13,8 +13,8 @@ public class Players : List<String>
 	public Players (JSONObject jsonPlayers)
 	{
 		for (int x = 0; x < jsonPlayers.Count; x++) {
-			this.Add(jsonPlayers [x].str);
-			Ids.Add (long.Parse(jsonPlayers [x].str));
+			this.Add(jsonPlayers [x].i + "");
+			Ids.Add (jsonPlayers [x].i);
 			Scores.Add (0);
 
 		}

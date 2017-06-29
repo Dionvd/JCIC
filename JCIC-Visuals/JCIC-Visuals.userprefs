@@ -1,12 +1,12 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Entity/Node.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Entity/Players.cs">
     <Files>
-      <File FileName="Assets/Scripts/UpdateGame.cs" Line="352" Column="1" />
+      <File FileName="Assets/Scripts/UpdateGame.cs" Line="80" Column="1" />
+      <File FileName="Assets/Scripts/SocketClient.cs" Line="63" Column="1" />
+      <File FileName="Assets/Scripts/UserInterface.cs" Line="61" Column="5" />
       <File FileName="Assets/Scripts/Entity/Map.cs" Line="2" Column="25" />
-      <File FileName="Assets/Scripts/AssignedPrefabs.cs" Line="46" Column="3" />
-      <File FileName="Assets/Scripts/SizeScaleAnimation.cs" Line="15" Column="9" />
-      <File FileName="Assets/Scripts/Entity/Node.cs" Line="192" Column="13" />
+      <File FileName="Assets/Scripts/Entity/Players.cs" Line="17" Column="13" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

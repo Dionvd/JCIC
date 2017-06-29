@@ -35,7 +35,7 @@ public class Settings implements Serializable {
     static final int DEFAULT_COST_DRAIN = 5;
     static final int DEFAULT_COST_EXPLODE = 80;
 
-    public static final int MAX_ROUND_PLAYER_SIZE = 8;
+    public static final int MAX_ROUND_PLAYER_SIZE = 4;
     public static final int MAX_ROUNDS = 5;
     public static final int DEFAULT_MAP_WIDTH = 10;  
     public static final int DEFAULT_MAP_HEIGHT = 10;
