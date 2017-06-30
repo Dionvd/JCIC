@@ -17,7 +17,7 @@ public class UpdateGame : MonoBehaviour
 {
 	
 	Dictionary<long, Map> Maps;
-	bool[] mapPos = new bool[5];
+	bool[] mapPos = new bool[7];
 
 	public static List<JSONObject> UpdateJSONObjects = new List<JSONObject> ();
 
@@ -142,27 +142,24 @@ public class UpdateGame : MonoBehaviour
 		switch (Maps.Count) {
 		case 1:
 			Map.X = 5;
-			Map.Y = 5;
 			break;
 		case 2:
-			Map.X = -6;
-			Map.Y = 5;
-
+			Map.X = -8;
 			break;
 		case 3:
-			Map.X = 16;
-			Map.Y = 5;
-
+			Map.X = 18;
 			break;
 		case 4: 
-			Map.X = -17;
-			Map.Y = 5;
-
+			Map.X = -21;
 			break;
 		case 5:
-			Map.X = 27;
-			Map.Y = 5;
-
+			Map.X = 31;
+			break;
+		case 6: 
+			Map.X = -34;
+			break;
+		case 7:
+			Map.X = 44;
 			break;
 		}
 
@@ -270,16 +267,22 @@ public class UpdateGame : MonoBehaviour
 				case 5:
 					mapPos [0] = false;
 					break;
-				case -6:
+				case -8:
 					mapPos [1] = false;
 					break;
-				case 16:
+				case 18:
 					mapPos [2] = false;
 					break;
-				case -17:
+				case -21:
 					mapPos [3] = false;
 					break;
-				case 27:
+				case 31:
+					mapPos [4] = false;
+					break;
+				case -34:
+					mapPos [4] = false;
+					break;
+				case -44:
 					mapPos [4] = false;
 					break;
 

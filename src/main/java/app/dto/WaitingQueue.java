@@ -32,6 +32,7 @@ public class WaitingQueue {
      */
     
     public Player RemoveFirst() {
+        if (players.isEmpty()) return null;
         return players.remove(0);
     }
 

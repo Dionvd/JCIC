@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import app.dao.RoundRepository;
 import app.dao.SettingsRepository;
 import app.rest.SettingsResource;
+import app.service.QueueService;
 import app.ui.TableActiveMatches;
 import java.util.Optional;
 import java.util.Set;
@@ -53,7 +54,7 @@ public class HostGame {
     @Inject
     private PlayerRepository playerRep;
     private static PlayerRepository playerRepository;
-    
+
     @Inject
     private RoundRepository roundRep;
     private static RoundRepository roundRepository;
@@ -61,7 +62,7 @@ public class HostGame {
     @Inject
     private SettingsRepository settingsRep;
     private static SettingsRepository settingsRepository;
-    
+
     private static boolean stopRounds = false;
     private static long stopRoundId = -1;
 
@@ -86,7 +87,7 @@ public class HostGame {
             roundRepository = roundRep;
             playerRepository = playerRep;
             settingsRepository = settingsRep;
-            
+
         };
 
     }
@@ -100,29 +101,45 @@ public class HostGame {
     public static void run() {
         while (true) {
             try {
-                
+
                 //Not enough rounds being played?
-                if (activeRounds.isEmpty())
-                {
+                if (activeRounds.isEmpty()) {
                     Settings settings = settingsRepository.findOne(1L);
                     Round round = new Round(settings);
                     roundRepository.save(round);
                     RoundMap map = new RoundMap(new Point(10, 10), round.getId());
                     round.setMap(map);
-                    
-                    round.getPlayerIds().add(1L);                 
-                    round.getPlayerIds().add(2L);
+
+                    Player player = QueueService.getWaitingQueue().RemoveFirst();
+
+                    while (player != null && round.getPlayerCount() < 4) {
+                        round.getPlayerIds().add(player.getId());
+                        player = QueueService.getWaitingQueue().RemoveFirst();
+                    }
+
+                    if (round.getPlayerCount() < 2) {
+                        round.getPlayerIds().add(1L);
+                    }
+                    if (round.getPlayerCount() < 2) {
+                        round.getPlayerIds().add(2L);
+                    }
+
                     round.getMap().generate(round.getPlayerIds());
-                    roundRepository.save(round);                    
-                  
+                    roundRepository.save(round);
+
                     storeRound(round);
                     Log.write("Game " + round.getId() + " initiated due to lack of active matches.");
                 }
-                
+
                 sleep(500);
 
                 //For every round, perform a turn
                 for (Round activeRound : new ArrayList<Round>(activeRounds.values())) {
+
+                    //did the round end?
+                    if (activeRound.isEnded()) {
+                        activeRounds.remove(activeRound.getId());
+                    }
 
                     //Internal bots calculate and send in their moves
                     calculateBotMoves(activeRound);
@@ -141,35 +158,29 @@ public class HostGame {
                     roundRepository.save(activeRound);
 
                     //DID THE MATCH END?
-                    if (activeRound.getTurn() > 300)
-                    {
+                    if (activeRound.getTurn() > 300) {
                         long id = activeRound.getMap().getPlayerWithMostNodes();
-                        if (id > 0)
-                        {
+                        if (id > 0) {
                             Player winner = playerRepository.findOne(id);
-                            winner.setWinCount(winner.getWinCount()+1);
+                            winner.setWinCount(winner.getWinCount() + 1);
                         }
                         activeRound.setEnded(true);
-                        activeRounds.remove(activeRound.getId());
                     }
-                    
-                    
+
                 }
 
-                
                 //SEND TURN TO UNITY
                 SocketToUnity.addTurnMoves(playerMoves, activeRounds);
-                
+
                 //RESET MOVE LIST
                 for (Round activeRound : activeRounds.values()) {
                     for (Long l : activeRound.getPlayerIds()) {
                         playerMoves.put(l, null);
                     }
                 }
-                
+
                 //RESET DATA?
-                if (stopRoundId != -1)
-                {
+                if (stopRoundId != -1) {
                     activeRounds.remove(stopRoundId);
                     stopRoundId = -1;
                 }
@@ -202,29 +213,29 @@ public class HostGame {
                 .forEachOrdered((bot) -> {
                     int i = bot.intValue();
                     MoveList moves = null;
-                    
-                    switch (i)
-                    {
-                        case 1: 
+
+                    switch (i) {
+                        case 1:
                             moves = GuardianBot.calculateMoves(activeRound.getMap());
                             break;
-                        case 2: 
+                        case 2:
                             moves = AssaultBot.calculateMoves(activeRound.getMap());
                             break;
-                        case 3: 
+                        case 3:
                             moves = PowerBot.calculateMoves(activeRound.getMap());
                             break;
-                        case 4: 
+                        case 4:
                             moves = TacticalBot.calculateMoves(activeRound.getMap());
                             break;
-                        case 5: 
+                        case 5:
                             moves = FrontierBot.calculateMoves(activeRound.getMap());
                             break;
-                        case 6: 
+                        case 6:
                             moves = PlanningBot.calculateMoves(activeRound.getMap());
                             break;
                     }
-                    playerMoves.put(bot, moves); });
+                    playerMoves.put(bot, moves);
+                });
     }
 
     /**
@@ -245,7 +256,6 @@ public class HostGame {
                 continue;
             }
 
-            
             for (Move move : new ArrayList<>(moves.getMoves())) {
 
                 Action action = Action.values()[move.getAction()];
@@ -255,7 +265,7 @@ public class HostGame {
                 node.adjustPower(-actionCosts.get(action));
 
                 boolean status = false;
-                
+
                 //perform action
                 switch (action) {
                     case SLEEP:
@@ -294,7 +304,7 @@ public class HostGame {
                         status = actionExplode(playerId, nodes, node, move, actionCosts.get(action), mapWidth);
                         break;
                 }
-                
+
                 if (status == false) //action did not go through
                 {
                     node.adjustPower(actionCosts.get(action));
@@ -305,18 +315,19 @@ public class HostGame {
         }
     }
 
-    
     /**
      * Increases the power of all owned nodes.
-     * @param activeRound 
+     *
+     * @param activeRound
      */
     static void performPowerIncrease(Round activeRound) {
         activeRound.getMap().getNodes().forEach(node -> {
             if (node.getOwnerId() != 0) {
-                if (node.getType() == 2)
+                if (node.getType() == 2) {
                     node.adjustPower(3);
-                else
+                } else {
                     node.adjustPower(1);
+                }
             }
         });
     }
@@ -330,7 +341,7 @@ public class HostGame {
      */
     public static void storeRound(Round round) {
         activeRounds.put(round.getId(), round);
-        
+
         SocketToUnity.addRound(round);
     }
 
@@ -405,17 +416,19 @@ public class HostGame {
     public static void stopRounds() {
         stopRounds = true;
     }
-    
-    public static void stopRound(int roundIndex)
-    {
-        if (roundIndex == -1) return;
+
+    public static void stopRound(int roundIndex) {
+        if (roundIndex == -1) {
+            return;
+        }
         Round round = new ArrayList<>(activeRounds.values()).get(roundIndex);
+        round.setEnded(true);
         stopRoundId = round.getId();
     }
 
     public static boolean actionSpread(Long playerId, List<Node> nodes, Node node, Move move, int actionCost, int mapWidth) {
         MoveDirection direction = MoveDirection.values()[move.getDirection()];
-        
+
         Point location = new Point(move.getX(), move.getY());
         Point location2 = direction.getLocation(location);
         Node node2 = nodes.get(location2.x + location2.y * mapWidth);
@@ -428,22 +441,24 @@ public class HostGame {
         Node node2;
 
         boolean didSomething = false;
-        
+        int mapHeight = nodes.size() / mapWidth;
+
         for (MoveDirection moveDirection : MoveDirection.values()) {
-            Point spreadPoint = moveDirection.getLocation(location);
-            int mapHeight = nodes.size()/mapWidth;
-            node2 = nodes.get(spreadPoint.x + spreadPoint.y * mapWidth);
             Point location2 = moveDirection.getLocation(location);
-            if (location2.x < 0 || location2.y < 0 || location2.x >= mapWidth || location2.y >= mapHeight)
+
+            if (location2.x < 0 || location2.y < 0 || location2.x >= mapWidth || location2.y >= mapHeight) {
                 continue;
+            }
+
             node2 = nodes.get(location2.x + location2.y * mapWidth);
             if (node2 != node) {
-                if (node2.attackedBy(playerId))
+                if (node2.attackedBy(playerId)) {
                     didSomething = true;
-                
+                }
+
             }
         }
-        
+
         return didSomething;
     }
 
@@ -451,19 +466,21 @@ public class HostGame {
 
         MoveDirection direction = MoveDirection.values()[move.getDirection()];
         Point location = new Point(move.getX(), move.getY());
-        int mapHeight = nodes.size()/mapWidth;
+        int mapHeight = nodes.size() / mapWidth;
         List<Point> locations = new ArrayList<>();
         Point location2 = location;
 
         boolean didSomething = false;
-        
+
         for (int i = 0; i < 5; i++) {
             location2 = direction.getLocation(location2);
-            if (location2.x < 0 || location2.y < 0 || location2.x >= mapWidth || location2.y >= mapHeight)
+            if (location2.x < 0 || location2.y < 0 || location2.x >= mapWidth || location2.y >= mapHeight) {
                 continue;
+            }
             Node node2 = nodes.get(location2.x + location2.y * mapWidth);
-            if (node2.attackedBy(playerId))
+            if (node2.attackedBy(playerId)) {
                 didSomething = true;
+            }
         }
 
         return didSomething;
@@ -475,13 +492,14 @@ public class HostGame {
         Node node2;
         Node lowestNode = null;
         int dir = -1;
-        
+
         for (int i = 1; i < MoveDirection.values().length; i++) {
             Point spreadPoint = MoveDirection.values()[i].getLocation(location);
-            
-            if (spreadPoint.x < 0 || spreadPoint.y < 0 || spreadPoint.x >= mapWidth || spreadPoint.y >= nodes.size()/mapWidth)
+
+            if (spreadPoint.x < 0 || spreadPoint.y < 0 || spreadPoint.x >= mapWidth || spreadPoint.y >= nodes.size() / mapWidth) {
                 continue;
-            
+            }
+
             node2 = nodes.get(spreadPoint.x + spreadPoint.y * mapWidth);
             if (node2.getOwnerId() == playerId && (lowestNode == null || node2.getPower() < lowestNode.getPower())) {
                 lowestNode = node2;
@@ -489,8 +507,10 @@ public class HostGame {
             }
         }
         //no other friendly nodes found
-        if (lowestNode == null) return false;
-        
+        if (lowestNode == null) {
+            return false;
+        }
+
         lowestNode.adjustPower(5);
         move.setDirection(dir);
         return true;
@@ -518,7 +538,7 @@ public class HostGame {
         for (Node friendlyAdjNode : friendlyAdjNodes) {
             friendlyAdjNode.adjustPower(remainingPower);
         }
-        
+
         return true;
     }
 
@@ -545,18 +565,17 @@ public class HostGame {
     public static boolean actionDrain(Long playerId, List<Node> nodes, Node node, Move move, int actionCost, int mapWidth) {
         Node highestNode;
         Point location = new Point(move.getX(), move.getY());
-        int mapHeight = nodes.size()/mapWidth;
-
+        int mapHeight = nodes.size() / mapWidth;
 
         List<Node> collectedList = Arrays.asList(MoveDirection.values()).stream().map(moveDirection -> {
             Point adjacentPoint = moveDirection.getLocation(location);
-            if (adjacentPoint.x > -1 && adjacentPoint.y > -1 && adjacentPoint.x < mapWidth && adjacentPoint.y < mapHeight)
+            if (adjacentPoint.x > -1 && adjacentPoint.y > -1 && adjacentPoint.x < mapWidth && adjacentPoint.y < mapHeight) {
                 return nodes.get(adjacentPoint.x + adjacentPoint.y * mapWidth);
-            else
+            } else {
                 return null;
+            }
         }).collect(Collectors.toList());
-        
-        
+
         Optional<Node> max = collectedList.stream()
                 .filter(adjacentNode -> adjacentNode != null)
                 .filter(adjacentNode -> adjacentNode.getOwnerId() != 0)
@@ -564,16 +583,15 @@ public class HostGame {
                 .filter(adjacentNode -> adjacentNode.getPower() >= 5)
                 .max((n1, n2) -> n1.getPower() - n2.getPower());
 
-        if (max.isPresent())
-        {
+        if (max.isPresent()) {
             highestNode = max.get();
             highestNode.adjustPower(-5);
-            
+
             move.setDirection(collectedList.indexOf(highestNode));
-            
+
             return true;
         }
-         
+
         return false;
     }
 
@@ -616,12 +634,13 @@ public class HostGame {
                 Node explodingNode = nodes.get(newX + newY * mapWidth);
                 explodingNode.setPower(0);
                 explodingNode.setOwnerId(0);
-                if (explodingNode.getType() != -1)
+                if (explodingNode.getType() != -1) {
                     explodingNode.setType(0);
+                }
             }
         }
-        
-        return true;    
+
+        return true;
 
     }
 

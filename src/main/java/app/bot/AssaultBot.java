@@ -96,11 +96,11 @@ public class AssaultBot {
 
             //for every draining node, send move to drain if not enough power to attack.
             for (Node drainNode : drainNodes) {
-                if (drainNode.getPower() < 60) {
-                    moves.add(new Move(new Point(drainNode.getX(), drainNode.getY()), Action.DRAIN, MoveDirection.CENTRAL));
-                } else {
+               // if (drainNode.getPower() < 60) {
+               //     moves.add(new Move(new Point(drainNode.getX(), drainNode.getY()), Action.DRAIN, MoveDirection.CENTRAL));
+              //  } else {
                     attackingNodes.add(drainNode);
-                }
+               // }
             }
 
             //for every attacking node, attack if enough power!

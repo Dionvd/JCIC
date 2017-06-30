@@ -101,7 +101,7 @@ public class QueueService {
         {
             //make a new Round
             
-            Round round = new Round(settingsRep.findOne(0L));
+            Round round = new Round(settingsRep.findOne(1L));
             
             //fill round with players from the Waiting Queue
             while (round.getPlayerCount() < round.getMaxPlayerSize()) {
