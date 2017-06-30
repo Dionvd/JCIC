@@ -120,10 +120,6 @@ public class Round implements Serializable {
         this.playerIds = playerIds;
     }
 
-    public Player getPlayer(long pID) {
-        
-        return null;
-    }
 
     public int getMaxPlayerSize() {
         return maxPlayerSize;

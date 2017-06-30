@@ -73,7 +73,14 @@ public class RoundService {
      */
     public Player findRoundPlayer(long roundId, long playerId) throws NotFoundException {
         Round round = Validate.notNull(roundRep.findOne(roundId));
-        return Validate.notNull(round.getPlayer(playerId));
+        if (round.getPlayerIds().contains(playerId))
+        {
+            Player findOne = playerRep.findOne(playerId);
+            Validate.notNull(findOne);
+            return findOne;
+        }
+        else
+            throw new NotFoundException();
     }
 
     /**

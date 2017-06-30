@@ -369,7 +369,7 @@ public class HostGame {
             throw new RoundHasEndedException();
         }
 
-        Player player = round.getPlayer(playerId);
+        Player player = playerRepository.findOne(playerId);
 
         if (player == null) {
             throw new NotInRoundException();
